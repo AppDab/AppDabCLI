@@ -8,7 +8,7 @@ struct AccountsTextRenderer: TextRenderer {
         let accounts = try TextDecoder.decode(Payload.self, from: content).accounts
         var sections = [style.heading("Accounts (\(accounts.count))")]
         if accounts.isEmpty {
-            sections.append("No accounts found. Add an App Store Connect account in AppDab, then run this command again.")
+            sections.append("No accounts found. Add one with `dab accounts add`, then run this command again.")
         } else {
             sections.append(TextTable(
                 headers: ["Name", "Account ID"],

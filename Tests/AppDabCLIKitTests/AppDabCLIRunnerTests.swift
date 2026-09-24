@@ -126,7 +126,7 @@ struct AppDabCLIRunnerTests {
 
         let result = await runner.run(arguments: ["accounts", "list"])
 
-        #expect(result.standardOutput == "Accounts (0)\n\nNo accounts found. Add an App Store Connect account in AppDab, then run this command again.")
+        #expect(result.standardOutput == "Accounts (0)\n\nNo accounts found. Add one with `dab accounts add`, then run this command again.")
     }
 
     @Test func includesTheAppContinuationCursorInJsonOutput() async throws {
