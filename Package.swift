@@ -11,6 +11,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/AppDab/AppDabKit", branch: "main"),
+        .package(url: "https://github.com/MortenGregersen/AppStoreConnectKit", from: "4.1.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
     ],
     targets: [
@@ -18,6 +19,8 @@ let package = Package(
             "AppDabCLIKit",
             .product(name: "AppDabAutomation", package: "AppDabKit"),
             .product(name: "AppDabServices", package: "AppDabKit"),
+            .product(name: "ConnectAccounts", package: "AppStoreConnectKit"),
+            .product(name: "ConnectKeychain", package: "AppStoreConnectKit"),
         ]),
         .target(name: "AppDabCLIKit", dependencies: [
             .product(name: "AppDabAutomation", package: "AppDabKit"),
@@ -26,6 +29,11 @@ let package = Package(
         .testTarget(name: "AppDabCLIKitTests", dependencies: [
             "AppDabCLIKit",
             .product(name: "AppDabKitTestSupport", package: "AppDabKit"),
+        ]),
+        .testTarget(name: "AppDabCLITests", dependencies: [
+            "AppDabCLI",
+            .product(name: "ConnectAccounts", package: "AppStoreConnectKit"),
+            .product(name: "ConnectKeychain", package: "AppStoreConnectKit"),
         ])
     ]
 )
