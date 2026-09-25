@@ -36,8 +36,8 @@ struct ReviewsListCommand: ParsableCommand, InvokingCommand {
 
     var invocation: CLIInvocation {
         var arguments: [String: JSONValue] = [
-            "account_id": .string(accountID),
-            "app_id": .string(appID)
+            "accountID": .string(accountID),
+            "appID": .string(appID)
         ]
         if let cursor {
             arguments["cursor"] = .string(cursor)

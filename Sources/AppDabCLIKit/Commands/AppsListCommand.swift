@@ -32,7 +32,7 @@ struct AppsListCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        var arguments: [String: JSONValue] = ["account_id": .string(accountID)]
+        var arguments: [String: JSONValue] = ["accountID": .string(accountID)]
         if let cursor {
             arguments["cursor"] = .string(cursor)
         }

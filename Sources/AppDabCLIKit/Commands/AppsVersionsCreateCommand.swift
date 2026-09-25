@@ -28,8 +28,8 @@ struct AppsVersionsCreateCommand: ParsableCommand, InvokingCommand {
         .init(
             actionID: .createAppVersion,
             arguments: [
-                "account_id": .string(accountID),
-                "app_id": .string(appID),
+                "accountID": .string(accountID),
+                "appID": .string(appID),
                 "platform": .string(platform.value.rawValue),
                 "version": .string(version),
             ],

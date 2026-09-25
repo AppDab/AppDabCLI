@@ -18,7 +18,7 @@ struct AppDabCLIParserTests {
 
         #expect(invocation.actionID == .listApps)
         #expect(invocation.arguments == [
-            "account_id": .string("account-1"),
+            "accountID": .string("account-1"),
             "cursor": .string("cursor-1"),
             "limit": .integer(25)
         ])
@@ -52,9 +52,9 @@ struct AppDabCLIParserTests {
         #expect(invocation.actionID == .addAccount)
         #expect(invocation.arguments == [
             "name": .string("Example Team"),
-            "key_id": .string("KEY123"),
-            "issuer_id": .string("ISSUER123"),
-            "private_key_file": .string("/secure/AuthKey_KEY123.p8")
+            "keyID": .string("KEY123"),
+            "issuerID": .string("ISSUER123"),
+            "privateKeyFile": .string("/secure/AuthKey_KEY123.p8")
         ])
         #expect(invocation.executionContext.mode == .execute)
     }
@@ -79,7 +79,7 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .removeAccount)
-        #expect(invocation.arguments == ["account_id": .string("ABCDEFGHIJ")])
+        #expect(invocation.arguments == ["accountID": .string("ABCDEFGHIJ")])
         #expect(invocation.executionContext.mode == .execute)
     }
 
@@ -89,7 +89,7 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .verifyAccount)
-        #expect(invocation.arguments == ["account_id": .string("ABCDEFGHIJ")])
+        #expect(invocation.arguments == ["accountID": .string("ABCDEFGHIJ")])
     }
 
     @Test func defaultsEveryCurrentCommandToText() throws {
@@ -145,8 +145,8 @@ struct AppDabCLIParserTests {
 
         #expect(invocation.actionID == .createAppVersion)
         #expect(invocation.arguments == [
-            "account_id": .string("account-1"),
-            "app_id": .string("app-1"),
+            "accountID": .string("account-1"),
+            "appID": .string("app-1"),
             "platform": .string("IOS"),
             "version": .string("2.0"),
         ])

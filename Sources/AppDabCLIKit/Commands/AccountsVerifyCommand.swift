@@ -22,7 +22,7 @@ struct AccountsVerifyCommand: ParsableCommand, InvokingCommand {
     var invocation: CLIInvocation {
         .init(
             actionID: .verifyAccount,
-            arguments: ["account_id": .string(accountID.trimmingCharacters(in: .whitespacesAndNewlines))],
+            arguments: ["accountID": .string(accountID.trimmingCharacters(in: .whitespacesAndNewlines))],
             format: output.format,
             verbose: output.verbose
         )

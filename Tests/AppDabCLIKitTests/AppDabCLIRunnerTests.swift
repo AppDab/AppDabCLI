@@ -137,7 +137,7 @@ struct AppDabCLIRunnerTests {
         let data = json?["data"] as? [String: Any]
 
         let pagination = data?["pagination"] as? [String: Any]
-        #expect(pagination?["next_cursor"] as? String == "next-app")
+        #expect(pagination?["nextCursor"] as? String == "next-app")
     }
 
     @Test func preservesExplicitJsonOutput() async {
@@ -145,7 +145,7 @@ struct AppDabCLIRunnerTests {
 
         #expect(result.exitCode == 0)
         #expect(result.standardOutput.contains("\"accounts\""))
-        #expect(result.standardOutput.contains("\"account_id\""))
+        #expect(result.standardOutput.contains("\"accountID\""))
         #expect(!result.standardOutput.contains("Accounts (1)"))
     }
 

@@ -42,10 +42,10 @@ struct AccountsAddCommand: ParsableCommand, InvokingCommand {
             actionID: .addAccount,
             arguments: [
                 "name": .string(name.trimmingCharacters(in: .whitespacesAndNewlines)),
-                "key_id": .string(keyID.trimmingCharacters(in: .whitespacesAndNewlines)),
-                "private_key_file": .string(privateKeyFilePath)
+                "keyID": .string(keyID.trimmingCharacters(in: .whitespacesAndNewlines)),
+                "privateKeyFile": .string(privateKeyFilePath)
             ].merging(issuerID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? [:] : [
-                "issuer_id": .string(issuerID.trimmingCharacters(in: .whitespacesAndNewlines))
+                "issuerID": .string(issuerID.trimmingCharacters(in: .whitespacesAndNewlines))
             ]) { _, new in new },
             format: output.format,
             verbose: output.verbose,

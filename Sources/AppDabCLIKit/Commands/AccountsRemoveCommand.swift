@@ -22,7 +22,7 @@ struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
     var invocation: CLIInvocation {
         .init(
             actionID: .removeAccount,
-            arguments: ["account_id": .string(accountID.trimmingCharacters(in: .whitespacesAndNewlines))],
+            arguments: ["accountID": .string(accountID.trimmingCharacters(in: .whitespacesAndNewlines))],
             format: output.format,
             verbose: output.verbose,
             executionContext: execution.context
