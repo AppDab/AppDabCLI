@@ -44,12 +44,17 @@ public final class CLIRunner: Sendable {
         }
 
         do {
-            let response = try await executor.execute(.init(
-                actionID: invocation.actionID,
-                arguments: invocation.arguments,
-                surface: .cli,
-                executionContext: invocation.executionContext
-            ))
+            let typedResult = try await invocation.typedExecution?(executor, invocation.executionContext)
+            let response: AutomationResponse
+            if let typedResult {
+                response = typedResult.response
+            } else {
+                response = try await executor.execute(.init(
+                    actionID: invocation.actionID,
+                    arguments: invocation.arguments,
+                    executionContext: invocation.executionContext
+                ))
+            }
             if shouldConfirmInteractively(response: response, invocation: invocation) {
                 return try await confirmInteractively(
                     preview: response,
@@ -57,7 +62,7 @@ public final class CLIRunner: Sendable {
                     commandArguments: arguments
                 )
             }
-            return renderedResult(response, invocation: invocation)
+            return renderedResult(response, invocation: invocation, typedResult: typedResult)
         } catch {
             return errorResult(error, invocation: invocation)
         }
@@ -100,17 +105,23 @@ public final class CLIRunner: Sendable {
         """)
 
         do {
-            let committed = try await executor.execute(.init(
-                actionID: invocation.actionID,
-                arguments: invocation.arguments,
-                surface: .cli,
-                executionContext: .init(
-                    mode: .commit,
-                    confirmationFingerprint: plan.confirmationFingerprint,
-                    idempotencyKey: idempotencyKey
-                )
-            ))
-            return renderedResult(committed, invocation: invocation)
+            let context = AutomationExecutionContext(
+                mode: .commit,
+                confirmationFingerprint: plan.confirmationFingerprint,
+                idempotencyKey: idempotencyKey
+            )
+            let typedResult = try await invocation.typedExecution?(executor, context)
+            let committed: AutomationResponse
+            if let typedResult {
+                committed = typedResult.response
+            } else {
+                committed = try await executor.execute(.init(
+                    actionID: invocation.actionID,
+                    arguments: invocation.arguments,
+                    executionContext: context
+                ))
+            }
+            return renderedResult(committed, invocation: invocation, typedResult: typedResult)
         } catch {
             if let executionError = error as? AutomationExecutionError,
                executionError == .indeterminate {
@@ -149,9 +160,11 @@ public final class CLIRunner: Sendable {
         )
     }
 
-    private func renderedResult(_ response: AutomationResponse, invocation: CLIInvocation) -> CLIResult {
+    private func renderedResult(
+        _ response: AutomationResponse, invocation: CLIInvocation, typedResult: CLITypedResult? = nil
+    ) -> CLIResult {
         do {
-            return try .init(exitCode: 0, standardOutput: output(for: response, invocation: invocation))
+            return try .init(exitCode: 0, standardOutput: output(for: response, invocation: invocation, typedResult: typedResult))
         } catch {
             let message = response.plan != nil
                 ? "The preview was created, but its output could not be displayed. No changes were made."
@@ -169,11 +182,12 @@ public final class CLIRunner: Sendable {
 
     private func output(
         for result: AutomationResponse,
-        invocation: CLIInvocation
+        invocation: CLIInvocation,
+        typedResult: CLITypedResult?
     ) throws -> String {
         switch invocation.format {
         case .json:
-            return try JSONValueEncoding.string(from: result.envelope)
+            return try JSONValueEncoding.string(from: (typedResult?.jsonResponse?() ?? result).envelope)
         case .text:
             if let plan = result.plan {
                 let executable = interaction?.executablePath ?? "dab"
@@ -191,25 +205,33 @@ public final class CLIRunner: Sendable {
                     style: .init(supportsColor: outputCapabilities.standardOutputSupportsColor)
                 )
             }
-            if result.data == .object([:]) {
+            if result.data == .object([:]), typedResult?.render == nil {
                 return result.summary
             }
-            let rendered = try textRenderers.render(
+            let style = TextStyle(
+                supportsColor: outputCapabilities.standardOutputSupportsColor,
+                maximumWidth: outputCapabilities.standardOutputMaximumWidth
+            )
+            let rendered = try typedResult?.render?(style) ?? textRenderers.render(
                 actionID: result.actionID,
                 structuredContent: result.structuredContent,
                 supportsColor: outputCapabilities.standardOutputSupportsColor,
                 maximumWidth: outputCapabilities.standardOutputMaximumWidth
             )
-            guard let continuationCommand = continuationCommand(for: result, invocation: invocation) else {
+            guard let continuationCommand = continuationCommand(
+                for: result, invocation: invocation, pagination: typedResult?.pagination
+            ) else {
                 return rendered
             }
             return "\(rendered)\n\nNext page command:\n\(continuationCommand)"
         }
     }
 
-    private func continuationCommand(for result: AutomationResponse, invocation: CLIInvocation) -> String? {
+    private func continuationCommand(
+        for result: AutomationResponse, invocation: CLIInvocation, pagination typedPagination: PaginationMetadata? = nil
+    ) -> String? {
         guard result.actionID == .listApps || result.actionID == .listCustomerReviews,
-              let pagination = try? TextDecoder.decode(PaginationPayload.self, from: result.structuredContent).pagination,
+              let pagination = typedPagination ?? (try? TextDecoder.decode(PaginationPayload.self, from: result.structuredContent).pagination),
               let cursor = pagination.nextCursor
         else {
             return nil

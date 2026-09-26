@@ -32,19 +32,16 @@ struct AppsListCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        var arguments: [String: JSONValue] = ["accountID": .string(accountID)]
-        if let cursor {
-            arguments["cursor"] = .string(cursor)
-        }
-        if let limit {
-            arguments["limit"] = .integer(limit)
-        }
-        return .init(
-            actionID: .listApps,
-            arguments: arguments,
+        let accountID = accountID
+        let cursor = cursor
+        let limit = limit
+        return .read(
+            ListAppsAction.self,
+            input: .init(accountID: accountID, pagination: .init(cursor: cursor, limit: limit)),
             format: output.format,
             verbose: output.verbose,
-            executionContext: .init()
+            render: { apps, style in AppsTextRenderer().render(apps, style: style) },
+            pagination: { $0.pagination }
         )
     }
 }

@@ -4,7 +4,7 @@ import AppDabServices
 import Testing
 
 struct AppDabCLIParserTests {
-    @Test func producesGenericInvocationForCuratedCommand() throws {
+    @Test func producesTypedInvocationForAppList() throws {
         let invocation = try CLIParser().parse([
             "apps",
             "list",
@@ -17,11 +17,8 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .listApps)
-        #expect(invocation.arguments == [
-            "accountID": .string("account-1"),
-            "cursor": .string("cursor-1"),
-            "limit": .integer(25)
-        ])
+        #expect(invocation.typedExecution != nil)
+        #expect(invocation.arguments.isEmpty)
         #expect(invocation.format == .text)
         #expect(invocation.originalArguments == [
             "apps", "list", "--account-id", "account-1", "--cursor", "cursor-1", "--limit", "25"
@@ -144,12 +141,8 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .createAppVersion)
-        #expect(invocation.arguments == [
-            "accountID": .string("account-1"),
-            "appID": .string("app-1"),
-            "platform": .string("IOS"),
-            "version": .string("2.0"),
-        ])
+        #expect(invocation.typedExecution != nil)
+        #expect(invocation.arguments.isEmpty)
         #expect(invocation.executionContext.mode == .execute)
     }
 

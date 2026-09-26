@@ -36,6 +36,9 @@ struct CLIErrorPresentation: Sendable {
         if invocation.executionContext.mode == .reconcile {
             return "reconcile the previous write"
         }
+        if let operationDescription = invocation.operationDescription {
+            return operationDescription
+        }
         if actionID == .listAccounts { return "list accounts" }
         if actionID == .listApps { return "list apps" }
         if actionID == .getApp { return "get the app" }

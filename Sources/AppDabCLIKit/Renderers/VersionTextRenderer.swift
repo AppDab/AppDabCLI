@@ -10,6 +10,10 @@ struct VersionTextRenderer: TextRenderer {
             throw TextRenderingError.invalidStructuredContent("Missing version.")
         }
         let version = try TextDecoder.decode(AppVersion.self, from: versionValue)
+        return render(version, style: style)
+    }
+
+    func render(_ version: AppVersion, style: TextStyle) -> String {
         return [
             style.heading("Created Version"),
             TextDetails(rows: [

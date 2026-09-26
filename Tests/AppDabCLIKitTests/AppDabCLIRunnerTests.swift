@@ -21,7 +21,7 @@ struct AppDabCLIRunnerTests {
         }
     }
 
-    @Test func successfulWriteWithBrokenRendererDoesNotInviteRetry() async {
+    @Test func typedWriteRendersWithoutDynamicRendererRegistry() async {
         let provider = CreateVersionDataProvider()
         let runner = CLIRunner(
             executor: makeCreateVersionExecutor(provider: provider),
@@ -30,10 +30,8 @@ struct AppDabCLIRunnerTests {
         )
         let result = await runner.run(arguments: createVersionArguments())
         #expect(await provider.createAttempts == 1)
-        #expect(result.exitCode == 1)
-        #expect(result.standardError.contains("operation succeeded"))
-        #expect(result.standardError.contains("Do not repeat"))
-        #expect(!result.standardError.contains("Could not create"))
+        #expect(result.exitCode == 0)
+        #expect(result.standardOutput.contains("Created Version"))
     }
 
     @Test func reconciliationFailureNamesReconciliation() async {
@@ -302,14 +300,11 @@ struct AppDabCLIRunnerTests {
         let provider = CreateVersionDataProvider(failure: .afterCreating)
         let executor = makeCreateVersionExecutor(provider: provider)
         let arguments = createVersionArguments()
-        let invocation = try CLIParser().parse(arguments)
-        let preview = try await executor.execute(.init(
-            actionID: invocation.actionID,
-            arguments: invocation.arguments,
-            surface: .cli,
-            executionContext: .init(mode: .preview)
-        ))
-        let plan = try #require(preview.plan)
+        let input = CreateAppVersionInput(
+            accountID: "account-1", appID: "app-1",
+            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+        )
+        let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
         let runner = CLIRunner(executor: executor)
 
         let result = await runner.run(arguments: arguments + [
@@ -326,29 +321,46 @@ struct AppDabCLIRunnerTests {
         #expect(result.standardError.contains("  --reconcile"))
     }
 
+    @Test func typedCommitProducesJSONReceiptAndReplaysWithoutAnotherMutation() async throws {
+        let provider = CreateVersionDataProvider()
+        let executor = makeCreateVersionExecutor(provider: provider)
+        let input = CreateAppVersionInput(
+            accountID: "account-1", appID: "app-1",
+            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+        )
+        let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
+        let runner = CLIRunner(executor: executor)
+        let arguments = createVersionArguments() + [
+            "--format", "json", "--confirm", plan.confirmationFingerprint,
+            "--idempotency-key", "json-commit-key"
+        ]
+
+        let first = await runner.run(arguments: arguments)
+        let replay = await runner.run(arguments: arguments)
+        let json = try #require(JSONSerialization.jsonObject(with: Data(first.standardOutput.utf8)) as? [String: Any])
+
+        #expect(first.exitCode == 0)
+        #expect(replay.exitCode == 0)
+        #expect(json["receipt"] != nil)
+        #expect((json["data"] as? [String: [String: Any]])?["version"]?["version"] as? String == "2.0")
+        #expect(await provider.createAttempts == 1)
+    }
+
     @Test func reconciliationWithoutAMutationRendersItsSummary() async throws {
         let provider = CreateVersionDataProvider(failure: .beforeCreating)
         let executor = makeCreateVersionExecutor(provider: provider)
         let arguments = createVersionArguments()
-        let invocation = try CLIParser().parse(arguments)
-        let preview = try await executor.execute(.init(
-            actionID: invocation.actionID,
-            arguments: invocation.arguments,
-            surface: .cli,
-            executionContext: .init(mode: .preview)
-        ))
-        let plan = try #require(preview.plan)
+        let input = CreateAppVersionInput(
+            accountID: "account-1", appID: "app-1",
+            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+        )
+        let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
         await #expect(throws: AutomationExecutionError.indeterminate) {
-            try await executor.execute(.init(
-                actionID: invocation.actionID,
-                arguments: invocation.arguments,
-                surface: .cli,
-                executionContext: .init(
-                    mode: .commit,
-                    confirmationFingerprint: plan.confirmationFingerprint,
-                    idempotencyKey: "reconcile-key"
-                )
-            ))
+            try await executor.commitResult(
+                CreateAppVersionAction.self, input: input,
+                confirmationFingerprint: plan.confirmationFingerprint,
+                idempotencyKey: "reconcile-key"
+            )
         }
         let interaction = TestCLIInteraction(responses: ["y"])
         let runner = CLIRunner(executor: executor, interaction: interaction)
@@ -501,13 +513,19 @@ struct AppDabCLIRunnerTests {
     }
 
     @Test func everyCliActionHasOneCuratedRenderer() {
-        let catalogActionIDs = Set(
-            AutomationActionCatalog.all
-                .filter { $0.supportedSurfaces.contains(.cli) }
-                .map(\.id)
-        )
-
-        #expect(CLITextRendererRegistry.supportedActionIDs == catalogActionIDs)
+        let commands = [
+            ["accounts", "list"],
+            ["accounts", "add", "--name", "Team", "--key-id", "KEY", "--private-key-file", "key.p8"],
+            ["accounts", "remove", "--account-id", "account-1"],
+            ["accounts", "verify", "--account-id", "account-1"],
+            ["apps", "list", "--account-id", "account-1"],
+            ["apps", "get", "--account-id", "account-1", "--app-id", "app-1"],
+            ["apps", "versions", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0"],
+            ["reviews", "list", "--account-id", "account-1", "--app-id", "app-1"]
+        ]
+        let parsed = commands.compactMap { try? CLIParser().parse($0).actionID }
+        #expect(parsed.count == commands.count)
+        #expect(CLITextRendererRegistry.supportedActionIDs == Set(parsed))
     }
 
     @Test func jsonOutputUsesSharedResponseEnvelope() async {

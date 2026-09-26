@@ -25,17 +25,18 @@ struct AppsVersionsCreateCommand: ParsableCommand, InvokingCommand {
     @OptionGroup var execution: ExecutionOptions
 
     var invocation: CLIInvocation {
-        .init(
-            actionID: .createAppVersion,
-            arguments: [
-                "accountID": .string(accountID),
-                "appID": .string(appID),
-                "platform": .string(platform.value.rawValue),
-                "version": .string(version),
-            ],
+        let accountID = accountID
+        let appID = appID
+        let platform = platform.value
+        let version = version
+        return .write(
+            CreateAppVersionAction.self,
+            input: .init(accountID: accountID, appID: appID, platform: platform, version: version),
             format: output.format,
             verbose: output.verbose,
-            executionContext: execution.context
+            executionContext: execution.context,
+            operationDescription: "create version \(version) for \(platform.prettyName)",
+            render: { version, style in VersionTextRenderer().render(version, style: style) }
         )
     }
 }

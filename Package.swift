@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "AppDabCLIKit", targets: ["AppDabCLIKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/AppDab/AppDabKit", branch: "main"),
+        .package(url: "https://github.com/AppDab/AppDabKit", branch: "feature/typed_action_pilot"),
         .package(url: "https://github.com/MortenGregersen/AppStoreConnectKit", from: "4.1.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
     ],
