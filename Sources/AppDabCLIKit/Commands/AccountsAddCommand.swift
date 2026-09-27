@@ -20,7 +20,6 @@ struct AccountsAddCommand: ParsableCommand, InvokingCommand {
     var privateKeyFilePath: String
 
     @OptionGroup var output: OutputOptions
-    @OptionGroup var execution: ExecutionOptions
 
     mutating func validate() throws {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -38,13 +37,11 @@ struct AccountsAddCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        .write(
+        .directWrite(
             AddAccountAction.self,
             input: .init(name: name, keyID: keyID, issuerID: issuerID, privateKeyFile: privateKeyFilePath),
             format: output.format,
             verbose: output.verbose,
-            executionContext: execution.context,
-            operationDescription: "add the API key",
             render: { addition, style in AccountAdditionTextRenderer().render(addition, style: style) }
         )
     }

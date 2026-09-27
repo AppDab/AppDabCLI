@@ -205,14 +205,14 @@ struct AppDabCLIParserTests {
         }
     }
 
-    @Test func APIKeyRemovalHelpDocumentsGuardedWriteOptions() {
+    @Test func APIKeyRemovalHelpOmitsGuardedWriteOptions() {
         do {
             _ = try CLIParser().parse(["accounts", "remove", "--help"])
             Issue.record("Expected help request.")
         } catch let help as CLIHelpRequest {
             #expect(help.message.contains("USAGE: dab accounts remove"))
             #expect(help.message.contains("--account-id"))
-            #expect(help.message.contains("--confirm"))
+            #expect(!help.message.contains("--confirm"))
         } catch {
             Issue.record("Unexpected error: \(error)")
         }

@@ -11,7 +11,6 @@ struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
     var accountID: String
 
     @OptionGroup var output: OutputOptions
-    @OptionGroup var execution: ExecutionOptions
 
     mutating func validate() throws {
         guard !accountID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -20,13 +19,11 @@ struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        .write(
+        .directWrite(
             RemoveAccountAction.self,
             input: .init(accountID: accountID),
             format: output.format,
             verbose: output.verbose,
-            executionContext: execution.context,
-            operationDescription: "remove the API key",
             render: { account, style in AccountRemovalTextRenderer().render(account, style: style) }
         )
     }

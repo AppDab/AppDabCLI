@@ -139,4 +139,38 @@ extension CLIInvocation {
             operationDescription: operationDescription
         )
     }
+
+    static func directWrite<Action: AutomationAction>(
+        _ actionType: Action.Type,
+        input: Action.Input,
+        format: CLIOutputFormat,
+        verbose: Bool,
+        render: @escaping @Sendable (Action.Output, TextStyle) throws -> String
+    ) -> Self {
+        .init(
+            actionID: actionType.descriptor.id,
+            format: format,
+            verbose: verbose,
+            typedExecution: { executor, _ in
+                let output = try await executor.execute(actionType, input: input)
+                let action = actionType.init()
+                return .init(
+                    response: .init(
+                        actionID: actionType.descriptor.id,
+                        summary: action.summary(for: output),
+                        data: .object([:])
+                    ),
+                    render: { style in try render(output, style) },
+                    pagination: nil,
+                    jsonResponse: {
+                        try .init(
+                            actionID: actionType.descriptor.id,
+                            summary: action.summary(for: output),
+                            data: action.data(for: output)
+                        )
+                    }
+                )
+            }
+        )
+    }
 }
