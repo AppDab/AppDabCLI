@@ -17,15 +17,12 @@ struct AppsGetCommand: ParsableCommand, InvokingCommand {
     @OptionGroup var output: OutputOptions
 
     var invocation: CLIInvocation {
-        .init(
-            actionID: .getApp,
-            arguments: [
-                "accountID": .string(accountID),
-                "appID": .string(appID)
-            ],
+        .read(
+            GetAppAction.self,
+            input: .init(accountID: accountID, appID: appID),
             format: output.format,
             verbose: output.verbose,
-            executionContext: .init()
+            render: { app, style in AppTextRenderer().render(app, style: style) }
         )
     }
 }

@@ -38,18 +38,14 @@ struct AccountsAddCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        .init(
-            actionID: .addAccount,
-            arguments: [
-                "name": .string(name.trimmingCharacters(in: .whitespacesAndNewlines)),
-                "keyID": .string(keyID.trimmingCharacters(in: .whitespacesAndNewlines)),
-                "privateKeyFile": .string(privateKeyFilePath)
-            ].merging(issuerID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? [:] : [
-                "issuerID": .string(issuerID.trimmingCharacters(in: .whitespacesAndNewlines))
-            ]) { _, new in new },
+        .write(
+            AddAccountAction.self,
+            input: .init(name: name, keyID: keyID, issuerID: issuerID, privateKeyFile: privateKeyFilePath),
             format: output.format,
             verbose: output.verbose,
-            executionContext: execution.context
+            executionContext: execution.context,
+            operationDescription: "add the API key",
+            render: { addition, style in AccountAdditionTextRenderer().render(addition, style: style) }
         )
     }
 }

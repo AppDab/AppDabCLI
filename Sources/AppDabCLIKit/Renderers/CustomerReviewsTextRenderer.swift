@@ -1,12 +1,8 @@
-import AppDabAutomation
 import AppDabServices
 import Foundation
 
-struct CustomerReviewsTextRenderer: TextRenderer {
-    let actionID = AutomationActionID.listCustomerReviews
-
-    func render(_ content: JSONValue, style: TextStyle) throws -> String {
-        let reviewList = try TextDecoder.decode(ReviewList.self, from: content)
+struct CustomerReviewsTextRenderer {
+    func render(_ reviewList: ReviewList, style: TextStyle) -> String {
         var sections = [style.heading("Showing \(reviewList.reviews.count) of \(reviewList.pagination.total) review\(reviewList.pagination.total == 1 ? "" : "s")")]
         if reviewList.reviews.isEmpty {
             sections.append("No reviews found.")

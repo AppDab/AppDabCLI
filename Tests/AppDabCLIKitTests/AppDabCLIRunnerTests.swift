@@ -21,11 +21,10 @@ struct AppDabCLIRunnerTests {
         }
     }
 
-    @Test func typedWriteRendersWithoutDynamicRendererRegistry() async {
+    @Test func typedWriteRendersNativeOutput() async {
         let provider = CreateVersionDataProvider()
         let runner = CLIRunner(
             executor: makeCreateVersionExecutor(provider: provider),
-            textRenderers: .init(renderers: []),
             interaction: TestCLIInteraction(responses: ["y"])
         )
         let result = await runner.run(arguments: createVersionArguments())
@@ -379,6 +378,34 @@ struct AppDabCLIRunnerTests {
         #expect(await provider.createAttempts == 0)
     }
 
+    @Test func reconciliationRendersTheNativeVersionAfterAResponseIsLost() async throws {
+        let provider = CreateVersionDataProvider(failure: .afterCreating)
+        let executor = makeCreateVersionExecutor(provider: provider)
+        let input = CreateAppVersionInput(
+            accountID: "account-1", appID: "app-1",
+            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+        )
+        let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
+        await #expect(throws: AutomationExecutionError.indeterminate) {
+            try await executor.commitResult(
+                CreateAppVersionAction.self, input: input,
+                confirmationFingerprint: plan.confirmationFingerprint,
+                idempotencyKey: "lost-response-key"
+            )
+        }
+
+        let result = await CLIRunner(executor: executor).run(arguments: createVersionArguments() + [
+            "--confirm", plan.confirmationFingerprint,
+            "--idempotency-key", "lost-response-key",
+            "--reconcile"
+        ])
+
+        #expect(result.exitCode == 0)
+        #expect(result.standardOutput.contains("Created Version"))
+        #expect(result.standardOutput.contains("2.0"))
+        #expect(await provider.createAttempts == 1)
+    }
+
     @Test func explicitCommitDoesNotPrompt() async {
         let provider = CreateVersionDataProvider()
         let interaction = TestCLIInteraction(responses: ["y"])
@@ -510,22 +537,6 @@ struct AppDabCLIRunnerTests {
         #expect(richResult.standardOutput.contains("\u{001B}[1;36mAccounts (1)\u{001B}[0m"))
         #expect(!noColorResult.standardOutput.contains("\u{001B}"))
         #expect(noColorResult.standardOutput == "Accounts (1)\n\nName     Account ID\nPrimary  account-1")
-    }
-
-    @Test func everyCliActionHasOneCuratedRenderer() {
-        let commands = [
-            ["accounts", "list"],
-            ["accounts", "add", "--name", "Team", "--key-id", "KEY", "--private-key-file", "key.p8"],
-            ["accounts", "remove", "--account-id", "account-1"],
-            ["accounts", "verify", "--account-id", "account-1"],
-            ["apps", "list", "--account-id", "account-1"],
-            ["apps", "get", "--account-id", "account-1", "--app-id", "app-1"],
-            ["apps", "versions", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0"],
-            ["reviews", "list", "--account-id", "account-1", "--app-id", "app-1"]
-        ]
-        let parsed = commands.compactMap { try? CLIParser().parse($0).actionID }
-        #expect(parsed.count == commands.count)
-        #expect(CLITextRendererRegistry.supportedActionIDs == Set(parsed))
     }
 
     @Test func jsonOutputUsesSharedResponseEnvelope() async {

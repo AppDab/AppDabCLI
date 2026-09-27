@@ -20,12 +20,14 @@ struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        .init(
-            actionID: .removeAccount,
-            arguments: ["accountID": .string(accountID.trimmingCharacters(in: .whitespacesAndNewlines))],
+        .write(
+            RemoveAccountAction.self,
+            input: .init(accountID: accountID),
             format: output.format,
             verbose: output.verbose,
-            executionContext: execution.context
+            executionContext: execution.context,
+            operationDescription: "remove the API key",
+            render: { account, style in AccountRemovalTextRenderer().render(account, style: style) }
         )
     }
 }

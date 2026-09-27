@@ -42,23 +42,8 @@ struct CLIErrorPresentation: Sendable {
         if actionID == .listAccounts { return "list accounts" }
         if actionID == .listApps { return "list apps" }
         if actionID == .getApp { return "get the app" }
-        if actionID == .createAppVersion {
-            let version = invocation.arguments["version"]?.stringValue ?? "the requested"
-            let platform = displayPlatform(invocation.arguments["platform"]?.stringValue)
-            return "create version \(version) for \(platform)"
-        }
         if actionID == .listCustomerReviews { return "list customer reviews" }
         return "complete \(actionID.rawValue.replacingOccurrences(of: "_", with: " "))"
-    }
-
-    private static func displayPlatform(_ platform: String?) -> String {
-        switch platform {
-        case "IOS": "iOS"
-        case "MAC_OS": "macOS"
-        case "TV_OS": "tvOS"
-        case "VISION_OS": "visionOS"
-        default: platform ?? "the selected platform"
-        }
     }
 
     private static func guidance(for error: AutomationActionError) -> String {

@@ -17,8 +17,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .listApps)
-        #expect(invocation.typedExecution != nil)
-        #expect(invocation.arguments.isEmpty)
         #expect(invocation.format == .text)
         #expect(invocation.originalArguments == [
             "apps", "list", "--account-id", "account-1", "--cursor", "cursor-1", "--limit", "25"
@@ -37,7 +35,7 @@ struct AppDabCLIParserTests {
         #expect(reviews.actionID == .listCustomerReviews)
     }
 
-    @Test func parsesAPIKeyAdditionWithoutEmbeddingThePrivateKey() throws {
+    @Test func parsesAPIKeyAddition() throws {
         let invocation = try CLIParser().parse([
             "accounts", "add",
             "--name", "Example Team",
@@ -47,12 +45,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .addAccount)
-        #expect(invocation.arguments == [
-            "name": .string("Example Team"),
-            "keyID": .string("KEY123"),
-            "issuerID": .string("ISSUER123"),
-            "privateKeyFile": .string("/secure/AuthKey_KEY123.p8")
-        ])
         #expect(invocation.executionContext.mode == .execute)
     }
 
@@ -76,7 +68,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .removeAccount)
-        #expect(invocation.arguments == ["accountID": .string("ABCDEFGHIJ")])
         #expect(invocation.executionContext.mode == .execute)
     }
 
@@ -86,7 +77,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .verifyAccount)
-        #expect(invocation.arguments == ["accountID": .string("ABCDEFGHIJ")])
     }
 
     @Test func defaultsEveryCurrentCommandToText() throws {
@@ -115,7 +105,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .listCustomerReviews)
-        #expect(invocation.arguments["limit"] == .integer(25))
         #expect(invocation.format == .json)
     }
 
@@ -141,8 +130,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .createAppVersion)
-        #expect(invocation.typedExecution != nil)
-        #expect(invocation.arguments.isEmpty)
         #expect(invocation.executionContext.mode == .execute)
     }
 

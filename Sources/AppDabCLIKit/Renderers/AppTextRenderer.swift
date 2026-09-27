@@ -1,12 +1,8 @@
-import AppDabAutomation
 import AppDabServices
 import Foundation
 
-struct AppTextRenderer: TextRenderer {
-    let actionID = AutomationActionID.getApp
-
-    func render(_ content: JSONValue, style: TextStyle) throws -> String {
-        let app = try TextDecoder.decode(Payload.self, from: content).app
+struct AppTextRenderer {
+    func render(_ app: AppDetail, style: TextStyle) -> String {
         var sections = [
             style.heading(app.name),
             TextDetails(rows: [
@@ -30,9 +26,5 @@ struct AppTextRenderer: TextRenderer {
             ).render(style: style))
         }
         return sections.joined(separator: "\n\n")
-    }
-
-    private struct Payload: Decodable {
-        let app: AppDetail
     }
 }

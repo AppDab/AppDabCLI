@@ -1,18 +1,7 @@
-import AppDabAutomation
 import AppDabServices
 import Foundation
 
-struct VersionTextRenderer: TextRenderer {
-    let actionID = AutomationActionID.createAppVersion
-
-    func render(_ content: JSONValue, style: TextStyle) throws -> String {
-        guard let versionValue = content.objectValue?["version"] else {
-            throw TextRenderingError.invalidStructuredContent("Missing version.")
-        }
-        let version = try TextDecoder.decode(AppVersion.self, from: versionValue)
-        return render(version, style: style)
-    }
-
+struct VersionTextRenderer {
     func render(_ version: AppVersion, style: TextStyle) -> String {
         return [
             style.heading("Created Version"),

@@ -5,7 +5,6 @@ import Foundation
 public final class CLIRunner: Sendable {
     private let parser: CLIParser
     private let executor: Executor
-    private let textRenderers: CLITextRendererRegistry
     private let outputCapabilities: CLIOutputCapabilities
     private let interaction: (any CLIInteraction)?
     private let makeIdempotencyKey: @Sendable () -> String
@@ -13,14 +12,12 @@ public final class CLIRunner: Sendable {
     public init(
         parser: CLIParser = .init(),
         executor: Executor,
-        textRenderers: CLITextRendererRegistry = .init(),
         outputCapabilities: CLIOutputCapabilities = .plain,
         interaction: (any CLIInteraction)? = nil,
         makeIdempotencyKey: @escaping @Sendable () -> String = { UUID().uuidString.lowercased() }
     ) {
         self.parser = parser
         self.executor = executor
-        self.textRenderers = textRenderers
         self.outputCapabilities = outputCapabilities
         self.interaction = interaction
         self.makeIdempotencyKey = makeIdempotencyKey
@@ -44,17 +41,8 @@ public final class CLIRunner: Sendable {
         }
 
         do {
-            let typedResult = try await invocation.typedExecution?(executor, invocation.executionContext)
-            let response: AutomationResponse
-            if let typedResult {
-                response = typedResult.response
-            } else {
-                response = try await executor.execute(.init(
-                    actionID: invocation.actionID,
-                    arguments: invocation.arguments,
-                    executionContext: invocation.executionContext
-                ))
-            }
+            let typedResult = try await invocation.typedExecution(executor, invocation.executionContext)
+            let response = typedResult.response
             if shouldConfirmInteractively(response: response, invocation: invocation) {
                 return try await confirmInteractively(
                     preview: response,
@@ -110,17 +98,8 @@ public final class CLIRunner: Sendable {
                 confirmationFingerprint: plan.confirmationFingerprint,
                 idempotencyKey: idempotencyKey
             )
-            let typedResult = try await invocation.typedExecution?(executor, context)
-            let committed: AutomationResponse
-            if let typedResult {
-                committed = typedResult.response
-            } else {
-                committed = try await executor.execute(.init(
-                    actionID: invocation.actionID,
-                    arguments: invocation.arguments,
-                    executionContext: context
-                ))
-            }
+            let typedResult = try await invocation.typedExecution(executor, context)
+            let committed = typedResult.response
             return renderedResult(committed, invocation: invocation, typedResult: typedResult)
         } catch {
             if let executionError = error as? AutomationExecutionError,
@@ -161,7 +140,7 @@ public final class CLIRunner: Sendable {
     }
 
     private func renderedResult(
-        _ response: AutomationResponse, invocation: CLIInvocation, typedResult: CLITypedResult? = nil
+        _ response: AutomationResponse, invocation: CLIInvocation, typedResult: CLITypedResult
     ) -> CLIResult {
         do {
             return try .init(exitCode: 0, standardOutput: output(for: response, invocation: invocation, typedResult: typedResult))
@@ -183,11 +162,11 @@ public final class CLIRunner: Sendable {
     private func output(
         for result: AutomationResponse,
         invocation: CLIInvocation,
-        typedResult: CLITypedResult?
+        typedResult: CLITypedResult
     ) throws -> String {
         switch invocation.format {
         case .json:
-            return try JSONValueEncoding.string(from: (typedResult?.jsonResponse?() ?? result).envelope)
+            return try JSONValueEncoding.string(from: (typedResult.jsonResponse?() ?? result).envelope)
         case .text:
             if let plan = result.plan {
                 let executable = interaction?.executablePath ?? "dab"
@@ -205,21 +184,16 @@ public final class CLIRunner: Sendable {
                     style: .init(supportsColor: outputCapabilities.standardOutputSupportsColor)
                 )
             }
-            if result.data == .object([:]), typedResult?.render == nil {
+            guard let render = typedResult.render else {
                 return result.summary
             }
             let style = TextStyle(
                 supportsColor: outputCapabilities.standardOutputSupportsColor,
                 maximumWidth: outputCapabilities.standardOutputMaximumWidth
             )
-            let rendered = try typedResult?.render?(style) ?? textRenderers.render(
-                actionID: result.actionID,
-                structuredContent: result.structuredContent,
-                supportsColor: outputCapabilities.standardOutputSupportsColor,
-                maximumWidth: outputCapabilities.standardOutputMaximumWidth
-            )
+            let rendered = try render(style)
             guard let continuationCommand = continuationCommand(
-                for: result, invocation: invocation, pagination: typedResult?.pagination
+                invocation: invocation, pagination: typedResult.pagination
             ) else {
                 return rendered
             }
@@ -228,11 +202,9 @@ public final class CLIRunner: Sendable {
     }
 
     private func continuationCommand(
-        for result: AutomationResponse, invocation: CLIInvocation, pagination typedPagination: PaginationMetadata? = nil
+        invocation: CLIInvocation, pagination: PaginationMetadata?
     ) -> String? {
-        guard result.actionID == .listApps || result.actionID == .listCustomerReviews,
-              let pagination = typedPagination ?? (try? TextDecoder.decode(PaginationPayload.self, from: result.structuredContent).pagination),
-              let cursor = pagination.nextCursor
+        guard let pagination, let cursor = pagination.nextCursor
         else {
             return nil
         }
@@ -263,10 +235,6 @@ public final class CLIRunner: Sendable {
         }
         arguments += ["--cursor", cursor, "--limit", String(limit)]
         return arguments
-    }
-
-    private struct PaginationPayload: Decodable {
-        let pagination: PaginationMetadata
     }
 
     private func errorResult(_ error: Error, invocation: CLIInvocation) -> CLIResult {

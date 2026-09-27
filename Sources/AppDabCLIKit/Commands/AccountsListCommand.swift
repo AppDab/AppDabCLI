@@ -10,12 +10,12 @@ struct AccountsListCommand: ParsableCommand, InvokingCommand {
     @OptionGroup var output: OutputOptions
 
     var invocation: CLIInvocation {
-        .init(
-            actionID: .listAccounts,
-            arguments: [:],
+        .read(
+            ListAccountsAction.self,
+            input: .init(),
             format: output.format,
             verbose: output.verbose,
-            executionContext: .init()
+            render: { accounts, style in AccountsTextRenderer().render(accounts, style: style) }
         )
     }
 }

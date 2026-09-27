@@ -3,41 +3,23 @@ import AppDabServices
 
 public struct CLIInvocation: Sendable {
     public let actionID: AutomationActionID
-    public let arguments: [String: JSONValue]
     public let format: CLIOutputFormat
     public let verbose: Bool
     public let executionContext: AutomationExecutionContext
     public let originalArguments: [String]
-    let typedExecution: (@Sendable (Executor, AutomationExecutionContext) async throws -> CLITypedResult)?
+    let typedExecution: @Sendable (Executor, AutomationExecutionContext) async throws -> CLITypedResult
     let operationDescription: String?
 
-    public init(
+    private init(
         actionID: AutomationActionID,
-        arguments: [String: JSONValue] = [:],
-        format: CLIOutputFormat = .text,
-        verbose: Bool = false,
-        executionContext: AutomationExecutionContext = .init(),
-        originalArguments: [String] = []
-    ) {
-        self.init(
-            actionID: actionID, arguments: arguments, format: format, verbose: verbose,
-            executionContext: executionContext, originalArguments: originalArguments,
-            typedExecution: nil, operationDescription: nil
-        )
-    }
-
-    init(
-        actionID: AutomationActionID,
-        arguments: [String: JSONValue] = [:],
         format: CLIOutputFormat = .text,
         verbose: Bool = false,
         executionContext: AutomationExecutionContext = .init(),
         originalArguments: [String] = [],
-        typedExecution: (@Sendable (Executor, AutomationExecutionContext) async throws -> CLITypedResult)?,
+        typedExecution: @escaping @Sendable (Executor, AutomationExecutionContext) async throws -> CLITypedResult,
         operationDescription: String? = nil
     ) {
         self.actionID = actionID
-        self.arguments = arguments
         self.format = format
         self.verbose = verbose
         self.executionContext = executionContext
@@ -49,7 +31,6 @@ public struct CLIInvocation: Sendable {
     func withOriginalArguments(_ arguments: [String]) -> Self {
         .init(
             actionID: actionID,
-            arguments: self.arguments,
             format: format,
             verbose: verbose,
             executionContext: executionContext,

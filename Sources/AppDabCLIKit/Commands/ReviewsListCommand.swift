@@ -35,22 +35,13 @@ struct ReviewsListCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        var arguments: [String: JSONValue] = [
-            "accountID": .string(accountID),
-            "appID": .string(appID)
-        ]
-        if let cursor {
-            arguments["cursor"] = .string(cursor)
-        }
-        if let limit {
-            arguments["limit"] = .integer(limit)
-        }
-        return .init(
-            actionID: .listCustomerReviews,
-            arguments: arguments,
+        return .read(
+            ListCustomerReviewsAction.self,
+            input: .init(accountID: accountID, appID: appID, pagination: .init(cursor: cursor, limit: limit)),
             format: output.format,
             verbose: output.verbose,
-            executionContext: .init()
+            render: { reviews, style in CustomerReviewsTextRenderer().render(reviews, style: style) },
+            pagination: { $0.pagination }
         )
     }
 }
