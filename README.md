@@ -34,9 +34,9 @@ swift run dab apps list --account-id ACCOUNT_ID
 Read versions and reviews with either text or `--format json` output:
 
 ```sh
-swift run dab apps versions list --account-id ACCOUNT_ID --app-id APP_ID
-swift run dab apps versions list --account-id ACCOUNT_ID --app-id APP_ID --platform iOS --limit 25
-swift run dab apps versions get --account-id ACCOUNT_ID --app-id APP_ID --version-id VERSION_ID
+swift run dab versions list --account-id ACCOUNT_ID --app-id APP_ID
+swift run dab versions list --account-id ACCOUNT_ID --app-id APP_ID --platform iOS --limit 25
+swift run dab versions get --account-id ACCOUNT_ID --app-id APP_ID --version-id VERSION_ID
 swift run dab reviews get --account-id ACCOUNT_ID --review-id REVIEW_ID
 ```
 

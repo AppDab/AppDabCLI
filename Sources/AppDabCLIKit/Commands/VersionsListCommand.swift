@@ -2,7 +2,7 @@ import AppDabAutomation
 import AppDabServices
 import ArgumentParser
 
-struct AppsVersionsListCommand: ParsableCommand, InvokingCommand {
+struct VersionsListCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "list",
         abstract: AutomationActionCatalog.descriptor(for: .listAppVersions)?.description

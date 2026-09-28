@@ -50,14 +50,14 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: AppsListCommand.self)
         case ["apps", "get"]:
             RootCommand.helpMessage(for: AppsGetCommand.self)
-        case ["apps", "versions"]:
-            RootCommand.helpMessage(for: AppsVersionsCommand.self)
-        case ["apps", "versions", "list"]:
-            RootCommand.helpMessage(for: AppsVersionsListCommand.self)
-        case ["apps", "versions", "get"]:
-            RootCommand.helpMessage(for: AppsVersionsGetCommand.self)
-        case ["apps", "versions", "create"]:
-            RootCommand.helpMessage(for: AppsVersionsCreateCommand.self)
+        case ["versions"]:
+            RootCommand.helpMessage(for: VersionsCommand.self)
+        case ["versions", "list"]:
+            RootCommand.helpMessage(for: VersionsListCommand.self)
+        case ["versions", "get"]:
+            RootCommand.helpMessage(for: VersionsGetCommand.self)
+        case ["versions", "create"]:
+            RootCommand.helpMessage(for: VersionsCreateCommand.self)
         case ["reviews"]:
             RootCommand.helpMessage(for: ReviewsCommand.self)
         case ["reviews", "list"]:
