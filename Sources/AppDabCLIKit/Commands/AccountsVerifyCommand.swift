@@ -20,11 +20,12 @@ struct AccountsVerifyCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        .init(
-            actionID: .verifyAccount,
-            arguments: ["accountID": .string(accountID.trimmingCharacters(in: .whitespacesAndNewlines))],
+        .read(
+            VerifyAccountAction.self,
+            input: .init(accountID: accountID.trimmingCharacters(in: .whitespacesAndNewlines)),
             format: output.format,
-            verbose: output.verbose
+            verbose: output.verbose,
+            render: { verification, style in AccountVerificationTextRenderer().render(verification, style: style) }
         )
     }
 }

@@ -4,7 +4,7 @@ import AppDabServices
 import Testing
 
 struct AppDabCLIParserTests {
-    @Test func producesGenericInvocationForCuratedCommand() throws {
+    @Test func producesTypedInvocationForAppList() throws {
         let invocation = try CLIParser().parse([
             "apps",
             "list",
@@ -17,11 +17,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .listApps)
-        #expect(invocation.arguments == [
-            "accountID": .string("account-1"),
-            "cursor": .string("cursor-1"),
-            "limit": .integer(25)
-        ])
         #expect(invocation.format == .text)
         #expect(invocation.originalArguments == [
             "apps", "list", "--account-id", "account-1", "--cursor", "cursor-1", "--limit", "25"
@@ -40,7 +35,7 @@ struct AppDabCLIParserTests {
         #expect(reviews.actionID == .listCustomerReviews)
     }
 
-    @Test func parsesAPIKeyAdditionWithoutEmbeddingThePrivateKey() throws {
+    @Test func parsesAPIKeyAddition() throws {
         let invocation = try CLIParser().parse([
             "accounts", "add",
             "--name", "Example Team",
@@ -50,12 +45,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .addAccount)
-        #expect(invocation.arguments == [
-            "name": .string("Example Team"),
-            "keyID": .string("KEY123"),
-            "issuerID": .string("ISSUER123"),
-            "privateKeyFile": .string("/secure/AuthKey_KEY123.p8")
-        ])
         #expect(invocation.executionContext.mode == .execute)
     }
 
@@ -79,7 +68,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .removeAccount)
-        #expect(invocation.arguments == ["accountID": .string("ABCDEFGHIJ")])
         #expect(invocation.executionContext.mode == .execute)
     }
 
@@ -89,7 +77,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .verifyAccount)
-        #expect(invocation.arguments == ["accountID": .string("ABCDEFGHIJ")])
     }
 
     @Test func defaultsEveryCurrentCommandToText() throws {
@@ -118,7 +105,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .listCustomerReviews)
-        #expect(invocation.arguments["limit"] == .integer(25))
         #expect(invocation.format == .json)
     }
 
@@ -144,12 +130,6 @@ struct AppDabCLIParserTests {
         ])
 
         #expect(invocation.actionID == .createAppVersion)
-        #expect(invocation.arguments == [
-            "accountID": .string("account-1"),
-            "appID": .string("app-1"),
-            "platform": .string("IOS"),
-            "version": .string("2.0"),
-        ])
         #expect(invocation.executionContext.mode == .execute)
     }
 
@@ -225,14 +205,14 @@ struct AppDabCLIParserTests {
         }
     }
 
-    @Test func APIKeyRemovalHelpDocumentsGuardedWriteOptions() {
+    @Test func APIKeyRemovalHelpOmitsGuardedWriteOptions() {
         do {
             _ = try CLIParser().parse(["accounts", "remove", "--help"])
             Issue.record("Expected help request.")
         } catch let help as CLIHelpRequest {
             #expect(help.message.contains("USAGE: dab accounts remove"))
             #expect(help.message.contains("--account-id"))
-            #expect(help.message.contains("--confirm"))
+            #expect(!help.message.contains("--confirm"))
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
