@@ -3,7 +3,7 @@ import ArgumentParser
 struct AppsCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "apps",
-        abstract: "List apps, inspect an app, or create a version.",
+        abstract: "List apps and inspect apps or versions.",
         subcommands: [
             AppsListCommand.self,
             AppsGetCommand.self,

@@ -12,7 +12,7 @@ struct CustomerReviewsTextRenderer {
         return sections.joined(separator: "\n\n")
     }
 
-    private func render(_ review: CustomerReview, style: TextStyle) -> String {
+    func render(_ review: CustomerReview, style: TextStyle) -> String {
         let rating = min(max(review.rating, 0), 5)
         let stars = String(repeating: "★", count: rating) + String(repeating: "☆", count: 5 - rating)
         var sections = [

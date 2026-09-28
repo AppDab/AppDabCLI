@@ -3,7 +3,12 @@ import ArgumentParser
 struct AppsVersionsCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "versions",
-        abstract: "Create an App Store Connect version.",
-        subcommands: [AppsVersionsCreateCommand.self]
+        abstract: "List, inspect, or create App Store Connect versions.",
+        subcommands: [
+            AppsVersionsListCommand.self,
+            AppsVersionsGetCommand.self,
+            AppsVersionsCreateCommand.self
+        ],
+        defaultSubcommand: AppsVersionsListCommand.self
     )
 }

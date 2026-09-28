@@ -133,6 +133,44 @@ struct AppDabCLIParserTests {
         #expect(invocation.executionContext.mode == .execute)
     }
 
+    @Test func parsesVersionAndReviewReadCommands() throws {
+        let versionList = try CLIParser().parse([
+            "apps", "versions", "list",
+            "--account-id", "account-1", "--app-id", "app-1",
+            "--platform", "iOS", "--platform", "macOS",
+            "--state", "READY_FOR_DISTRIBUTION",
+            "--version", "1.2.3", "--version-id", "version-1",
+            "--limit", "25", "--format", "json"
+        ])
+        let versionGet = try CLIParser().parse([
+            "apps", "versions", "get",
+            "--account-id", "account-1", "--app-id", "app-1", "--version-id", "version-1"
+        ])
+        let reviewGet = try CLIParser().parse([
+            "reviews", "get", "--account-id", "account-1", "--review-id", "review-1"
+        ])
+
+        #expect(versionList.actionID == .listAppVersions)
+        #expect(versionList.format == .json)
+        #expect(versionGet.actionID == .getAppVersion)
+        #expect(reviewGet.actionID == .getCustomerReview)
+    }
+
+    @Test func versionListRejectsAnInvalidState() {
+        do {
+            _ = try CLIParser().parse([
+                "apps", "versions", "list", "--account-id", "account-1", "--app-id", "app-1",
+                "--state", "not-a-state"
+            ])
+            Issue.record("Expected state validation to fail.")
+        } catch let error as CLIUsageError {
+            #expect(error.message.contains("dab apps versions list"))
+            #expect(error.message.contains("--state"))
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
     @Test func missingRequiredOptionIncludesCommandUsage() {
         do {
             _ = try CLIParser().parse(["apps", "get", "--app-id", "app-1"])

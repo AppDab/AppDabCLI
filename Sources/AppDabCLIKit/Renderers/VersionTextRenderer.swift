@@ -2,9 +2,9 @@ import AppDabServices
 import Foundation
 
 struct VersionTextRenderer {
-    func render(_ version: AppVersion, style: TextStyle) -> String {
+    func render(_ version: AppVersion, title: String = "Created Version", style: TextStyle) -> String {
         return [
-            style.heading("Created Version"),
+            style.heading(title),
             TextDetails(rows: [
                 ("Version", version.version),
                 ("Platform", version.platform),
