@@ -105,7 +105,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func readsAnAuthoritativeVersionInTextAndJSON() async throws {
         let arguments = [
-            "versions", "get", "--account-id", "account-1",
+            "appVersion", "get", "--account-id", "account-1",
             "--app-id", "app-1", "--version-id", "version-1"
         ]
         let text = await makeRunner().run(arguments: arguments)
@@ -124,7 +124,7 @@ struct AppDabCLIRunnerTests {
     }
 
     @Test func listsVersionsWithIdentifiersAndAnEmptyState() async {
-        let arguments = ["versions", "list", "--account-id", "account-1", "--app-id", "app-1"]
+        let arguments = ["appVersion", "list", "--account-id", "account-1", "--app-id", "app-1"]
         let populated = await makeRunner().run(arguments: arguments)
         let empty = await makeRunner(dataProvider: .init(returnsEmptyCollections: true)).run(arguments: arguments)
 
@@ -197,7 +197,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func previewsCreateVersionInTheDefaultTextFormat() async {
         let result = await makePreviewRunner().run(arguments: [
-            "versions", "create",
+            "appVersion", "create",
             "--account-id", "account-1",
             "--app-id", "app-1",
             "--platform", "iOS",
@@ -321,7 +321,7 @@ struct AppDabCLIRunnerTests {
         _ = await runner.run(arguments: arguments)
 
         #expect(interaction.standardError.contains("Recovery command, if the outcome is indeterminate:"))
-        #expect(interaction.standardError.contains("versions create \\"))
+        #expect(interaction.standardError.contains("appVersion create \\"))
         #expect(interaction.standardError.contains("  --confirm "))
         #expect(interaction.standardError.contains("  --idempotency-key interactive-key \\"))
         #expect(interaction.standardError.contains("  --reconcile"))
@@ -649,7 +649,7 @@ struct AppDabCLIRunnerTests {
 
     private func createVersionArguments(version: String = "2.0") -> [String] {
         [
-            "versions", "create",
+            "appVersion", "create",
             "--account-id", "account-1",
             "--app-id", "app-1",
             "--platform", "iOS",

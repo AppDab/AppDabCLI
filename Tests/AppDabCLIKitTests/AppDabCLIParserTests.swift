@@ -27,7 +27,7 @@ struct AppDabCLIParserTests {
         let accounts = try CLIParser().parse(["accounts"])
         let apps = try CLIParser().parse(["apps", "--account-id", "account-1"])
         let versions = try CLIParser().parse([
-            "versions", "--account-id", "account-1", "--app-id", "app-1"
+            "appVersion", "--account-id", "account-1", "--app-id", "app-1"
         ])
         let reviews = try CLIParser().parse([
             "reviews", "--account-id", "account-1", "--app-id", "app-1"
@@ -117,7 +117,7 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["accounts", "list", "--verbose"]),
             CLIParser().parse(["apps", "list", "--account-id", "account-1", "--verbose"]),
             CLIParser().parse(["apps", "get", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
-            CLIParser().parse(["versions", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0", "--verbose"]),
+            CLIParser().parse(["appVersion", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0", "--verbose"]),
             CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"])
         ]
 
@@ -126,7 +126,7 @@ struct AppDabCLIParserTests {
 
     @Test func parsesCreateVersionAtTheRootResourcePath() throws {
         let invocation = try CLIParser().parse([
-            "versions", "create",
+            "appVersion", "create",
             "--account-id", "account-1",
             "--app-id", "app-1",
             "--platform", "iOS",
@@ -139,7 +139,7 @@ struct AppDabCLIParserTests {
 
     @Test func parsesVersionAndReviewReadCommands() throws {
         let versionList = try CLIParser().parse([
-            "versions", "list",
+            "appVersion", "list",
             "--account-id", "account-1", "--app-id", "app-1",
             "--platform", "iOS", "--platform", "macOS",
             "--state", "READY_FOR_DISTRIBUTION",
@@ -147,7 +147,7 @@ struct AppDabCLIParserTests {
             "--limit", "25", "--format", "json"
         ])
         let versionGet = try CLIParser().parse([
-            "versions", "get",
+            "appVersion", "get",
             "--account-id", "account-1", "--app-id", "app-1", "--version-id", "version-1"
         ])
         let reviewGet = try CLIParser().parse([
@@ -163,12 +163,12 @@ struct AppDabCLIParserTests {
     @Test func versionListRejectsAnInvalidState() {
         do {
             _ = try CLIParser().parse([
-                "versions", "list", "--account-id", "account-1", "--app-id", "app-1",
+                "appVersion", "list", "--account-id", "account-1", "--app-id", "app-1",
                 "--state", "not-a-state"
             ])
             Issue.record("Expected state validation to fail.")
         } catch let error as CLIUsageError {
-            #expect(error.message.contains("dab versions list"))
+            #expect(error.message.contains("dab appVersion list"))
             #expect(error.message.contains("--state"))
         } catch {
             Issue.record("Unexpected error: \(error)")
@@ -274,10 +274,10 @@ struct AppDabCLIParserTests {
 
     @Test func createVersionHelpShowsTheFlatCommand() {
         do {
-            _ = try CLIParser().parse(["versions", "create", "--help"])
+            _ = try CLIParser().parse(["appVersion", "create", "--help"])
             Issue.record("Expected help request.")
         } catch let help as CLIHelpRequest {
-            #expect(help.message.contains("USAGE: dab versions create"))
+            #expect(help.message.contains("USAGE: dab appVersion create"))
             #expect(help.message.contains("--platform"))
             #expect(help.message.contains("--confirm"))
             #expect(help.message.contains("iOS, macOS, tvOS, or visionOS"))
@@ -286,25 +286,26 @@ struct AppDabCLIParserTests {
         }
     }
 
-    @Test func nestedVersionPathHasNoCompatibilityAlias() {
-        do {
-            _ = try CLIParser().parse([
-                "apps", "versions", "create",
-                "--account-id", "account-1", "--app-id", "app-1",
-                "--platform", "iOS", "--version", "2.0"
-            ])
-            Issue.record("Expected the nested version path to be unavailable.")
-        } catch is CLIUsageError {
-            // The action catalog specifies a direct move with no compatibility alias.
-        } catch {
-            Issue.record("Unexpected error: \(error)")
+    @Test func genericAndNestedVersionPathsHaveNoCompatibilityAlias() {
+        for resourcePath in [["versions"], ["apps", "versions"], ["apps", "appVersion"]] {
+            do {
+                _ = try CLIParser().parse(resourcePath + [
+                    "create", "--account-id", "account-1", "--app-id", "app-1",
+                    "--platform", "iOS", "--version", "2.0"
+                ])
+                Issue.record("Expected \(resourcePath) to be unavailable.")
+            } catch is CLIUsageError {
+                // The action catalog specifies a direct move with no compatibility alias.
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
         }
     }
 
     @Test func rejectsRawPlatformValueForCreateVersion() {
         do {
             _ = try CLIParser().parse([
-                "versions", "create",
+                "appVersion", "create",
                 "--account-id", "account-1",
                 "--app-id", "app-1",
                 "--platform", "IOS",
@@ -354,7 +355,7 @@ struct AppDabCLIParserTests {
 
     @Test func previewUsesPreviewExecutionContext() throws {
         let invocation = try CLIParser().parse([
-            "versions", "create",
+            "appVersion", "create",
             "--account-id", "account-1",
             "--app-id", "app-1",
             "--platform", "iOS",
@@ -368,7 +369,7 @@ struct AppDabCLIParserTests {
     @Test func previewRejectsExplicitExecutionFlags() {
         do {
             _ = try CLIParser().parse([
-                "versions", "create",
+                "appVersion", "create",
                 "--account-id", "account-1",
                 "--app-id", "app-1",
                 "--platform", "iOS",

@@ -1,7 +1,7 @@
 import AppDabAutomation
 import ArgumentParser
 
-struct VersionsGetCommand: ParsableCommand, InvokingCommand {
+struct AppVersionGetCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "get",
         abstract: AutomationActionCatalog.descriptor(for: .getAppVersion)?.description
