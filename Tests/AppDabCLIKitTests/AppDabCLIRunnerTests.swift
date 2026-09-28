@@ -103,6 +103,55 @@ struct AppDabCLIRunnerTests {
         #expect(result.standardOutput.contains("response-1"))
     }
 
+    @Test func readsAnAuthoritativeVersionInTextAndJSON() async throws {
+        let arguments = [
+            "appVersion", "get", "--account-id", "account-1",
+            "--app-id", "app-1", "--version-id", "version-1"
+        ]
+        let text = await makeRunner().run(arguments: arguments)
+        let json = await makeRunner().run(arguments: arguments + ["--format", "json"])
+        let envelope = try JSONSerialization.jsonObject(with: Data(json.standardOutput.utf8)) as? [String: Any]
+        let data = envelope?["data"] as? [String: Any]
+        let version = data?["version"] as? [String: Any]
+
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("Version\n\nVersion:"))
+        #expect(text.standardOutput.contains("Version ID:"))
+        #expect(text.standardOutput.contains("version-1"))
+        #expect(json.exitCode == 0)
+        #expect(envelope?["action"] as? String == "get_app_version")
+        #expect(version?["versionID"] as? String == "version-1")
+    }
+
+    @Test func listsVersionsWithIdentifiersAndAnEmptyState() async {
+        let arguments = ["appVersion", "list", "--account-id", "account-1", "--app-id", "app-1"]
+        let populated = await makeRunner().run(arguments: arguments)
+        let empty = await makeRunner(dataProvider: .init(returnsEmptyCollections: true)).run(arguments: arguments)
+
+        #expect(populated.exitCode == 0)
+        #expect(populated.standardOutput.contains("Versions (1 of 1)"))
+        #expect(populated.standardOutput.contains("1.2.3"))
+        #expect(populated.standardOutput.contains("version-1"))
+        #expect(empty.exitCode == 0)
+        #expect(empty.standardOutput.contains("No versions found."))
+    }
+
+    @Test func readsAReviewWithItsPublishedResponse() async throws {
+        let arguments = ["reviews", "get", "--account-id", "account-1", "--review-id", "review-1"]
+        let text = await makeRunner().run(arguments: arguments)
+        let json = await makeRunner().run(arguments: arguments + ["--format", "json"])
+        let envelope = try JSONSerialization.jsonObject(with: Data(json.standardOutput.utf8)) as? [String: Any]
+        let data = envelope?["data"] as? [String: Any]
+        let review = data?["review"] as? [String: Any]
+
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("Love it"))
+        #expect(text.standardOutput.contains("Thank you!"))
+        #expect(json.exitCode == 0)
+        #expect(envelope?["action"] as? String == "get_customer_review")
+        #expect(review?["reviewID"] as? String == "review-1")
+    }
+
     @Test func rendersACopyableContinuationCommand() async {
         let result = await makeRunner().run(arguments: [
             "reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--limit", "1"
@@ -148,7 +197,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func previewsCreateVersionInTheDefaultTextFormat() async {
         let result = await makePreviewRunner().run(arguments: [
-            "apps", "versions", "create",
+            "appVersion", "create",
             "--account-id", "account-1",
             "--app-id", "app-1",
             "--platform", "iOS",
@@ -272,7 +321,7 @@ struct AppDabCLIRunnerTests {
         _ = await runner.run(arguments: arguments)
 
         #expect(interaction.standardError.contains("Recovery command, if the outcome is indeterminate:"))
-        #expect(interaction.standardError.contains("apps versions create \\"))
+        #expect(interaction.standardError.contains("appVersion create \\"))
         #expect(interaction.standardError.contains("  --confirm "))
         #expect(interaction.standardError.contains("  --idempotency-key interactive-key \\"))
         #expect(interaction.standardError.contains("  --reconcile"))
@@ -600,7 +649,7 @@ struct AppDabCLIRunnerTests {
 
     private func createVersionArguments(version: String = "2.0") -> [String] {
         [
-            "apps", "versions", "create",
+            "appVersion", "create",
             "--account-id", "account-1",
             "--app-id", "app-1",
             "--platform", "iOS",

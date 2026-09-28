@@ -19,7 +19,7 @@ struct CLICommandFormatterTests {
 
     @Test func recoveryStripsPresentationAndRedactsSecrets() {
         let command = CLICommandFormatter.render(arguments: [
-            "apps", "versions", "create", "--version", "--verbose",
+            "appVersion", "create", "--version", "--verbose",
             "--confirm=abc", "--idempotency-key", "key", "--format", "json",
             "--password", "sensitive", "--verbose"
         ])
