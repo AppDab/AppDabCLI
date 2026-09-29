@@ -4,7 +4,7 @@ struct BuildsCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "builds",
         abstract: "Work with an app's builds.",
-        subcommands: [BuildsListCommand.self],
+        subcommands: [BuildsListCommand.self, BuildsGetCommand.self],
         defaultSubcommand: BuildsListCommand.self
     )
 }
