@@ -1,5 +1,5 @@
 {
-  "originHash" : "75cb69fd85d5ab10b7c5f01045903da154cadd9ea593ffbe93a0c3c976ab0e1d",
+  "originHash" : "085af1fc1cbb86cf16b0be20f8dcf30693677d0ee2d3b694cbd41472c2462e3f",
   "pins" : [
     {
       "identity" : "appdabkit",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MortenGregersen/AppStoreConnectKit",
       "state" : {
-        "revision" : "9d247652ad533e4797367c0e8a03b394d42de619",
-        "version" : "4.1.0"
+        "branch" : "fix/standalone-keychain-option",
+        "revision" : "3e26d4641e59881c7e1a8e1f376cd7f8fdf9f4a9"
       }
     },
     {
