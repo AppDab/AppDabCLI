@@ -29,6 +29,9 @@ struct AppDabCLIParserTests {
         let versions = try CLIParser().parse([
             "appVersion", "--account-id", "account-1", "--app-id", "app-1"
         ])
+        let builds = try CLIParser().parse([
+            "builds", "--account-id", "account-1", "--app-id", "app-1"
+        ])
         let reviews = try CLIParser().parse([
             "reviews", "--account-id", "account-1", "--app-id", "app-1"
         ])
@@ -36,6 +39,7 @@ struct AppDabCLIParserTests {
         #expect(accounts.actionID == .listAccounts)
         #expect(apps.actionID == .listApps)
         #expect(versions.actionID == .listAppVersions)
+        #expect(builds.actionID == .listBuilds)
         #expect(reviews.actionID == .listCustomerReviews)
     }
 
@@ -88,6 +92,7 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["accounts", "list"]),
             CLIParser().parse(["apps", "list", "--account-id", "account-1"]),
             CLIParser().parse(["apps", "get", "--account-id", "account-1", "--app-id", "app-1"]),
+            CLIParser().parse(["builds", "list", "--account-id", "account-1", "--app-id", "app-1"]),
             CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1"])
         ]
 
@@ -118,10 +123,11 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["apps", "list", "--account-id", "account-1", "--verbose"]),
             CLIParser().parse(["apps", "get", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
             CLIParser().parse(["appVersion", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0", "--verbose"]),
+            CLIParser().parse(["builds", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
             CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"])
         ]
 
-        #expect(invocations.map { $0.verbose } == [true, true, true, true, true])
+        #expect(invocations.map { $0.verbose } == [true, true, true, true, true, true])
     }
 
     @Test func parsesCreateVersionAtTheRootResourcePath() throws {
