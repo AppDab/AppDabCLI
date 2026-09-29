@@ -1,7 +1,9 @@
 import AppDabAutomation
 import ArgumentParser
 
-struct AccountsListCommand: ParsableCommand, InvokingCommand {
+struct AccountsListCommand: TypedAutomationCLICommand {
+    static let actionID: AutomationActionID = .listAccounts
+    static let actionPath = ["accounts", "list"]
     static let configuration = CommandConfiguration(
         commandName: "list",
         abstract: AutomationActionCatalog.descriptor(for: .listAccounts)?.description ?? "List configured accounts."

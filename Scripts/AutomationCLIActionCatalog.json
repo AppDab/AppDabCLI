@@ -1,0 +1,14 @@
+[
+  {"id":"list_accounts","commandType":"AccountsListCommand"},
+  {"id":"add_account","commandType":"AccountsAddCommand"},
+  {"id":"remove_account","commandType":"AccountsRemoveCommand"},
+  {"id":"verify_account","commandType":"AccountsVerifyCommand"},
+  {"id":"list_apps","commandType":"AppsListCommand"},
+  {"id":"get_app","commandType":"AppsGetCommand"},
+  {"id":"list_app_versions","commandType":"AppVersionListCommand"},
+  {"id":"get_app_version","commandType":"AppVersionGetCommand"},
+  {"id":"list_builds","commandType":"BuildsListCommand"},
+  {"id":"create_app_version","commandType":"AppVersionCreateCommand"},
+  {"id":"list_customer_reviews","commandType":"ReviewsListCommand"},
+  {"id":"get_customer_review","commandType":"ReviewsGetCommand"}
+]

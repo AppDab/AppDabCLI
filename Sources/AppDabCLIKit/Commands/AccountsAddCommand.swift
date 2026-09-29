@@ -1,7 +1,9 @@
 import AppDabAutomation
 import ArgumentParser
 
-struct AccountsAddCommand: ParsableCommand, InvokingCommand {
+struct AccountsAddCommand: TypedAutomationCLICommand {
+    static let actionID: AutomationActionID = .addAccount
+    static let actionPath = ["accounts", "add"]
     static let configuration = CommandConfiguration(
         commandName: "add",
         abstract: "Add and validate an App Store Connect API key."

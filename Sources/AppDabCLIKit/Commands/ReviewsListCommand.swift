@@ -2,7 +2,9 @@ import AppDabAutomation
 import AppDabServices
 import ArgumentParser
 
-struct ReviewsListCommand: ParsableCommand, InvokingCommand {
+struct ReviewsListCommand: TypedAutomationCLICommand {
+    static let actionID: AutomationActionID = .listCustomerReviews
+    static let actionPath = ["reviews", "list"]
     static let configuration = CommandConfiguration(
         commandName: "list",
         abstract: AutomationActionCatalog.descriptor(for: .listCustomerReviews)?.description ?? "List customer reviews."
