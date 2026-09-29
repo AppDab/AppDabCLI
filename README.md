@@ -46,4 +46,21 @@ Version list filters (`--platform`, `--state`, `--version`, and `--version-id`) 
 
 Mutation previews and audit records are stored in `~/Library/Application Support/AppDabCLI/dab-audit.sqlite`.
 
+## TestFlight writes
+
+These commands use guarded previews. In an interactive terminal, `dab` asks for confirmation. In scripts, run with `--preview`, then use the displayed `--confirm` fingerprint and a unique `--idempotency-key` to commit. If the outcome is uncertain, repeat the command with `--reconcile` and the same fingerprint and key.
+
+```sh
+dab builds addTester --account-id ACCOUNT_ID --build-id BUILD_ID --tester-id TESTER_ID
+dab builds removeTester --account-id ACCOUNT_ID --build-id BUILD_ID --tester-id TESTER_ID
+dab builds addBetaGroup --account-id ACCOUNT_ID --build-id BUILD_ID --beta-group-id GROUP_ID
+dab builds removeBetaGroup --account-id ACCOUNT_ID --build-id BUILD_ID --beta-group-id GROUP_ID
+dab builds submitForBetaReview --account-id ACCOUNT_ID --build-id BUILD_ID --no-auto-notify
+dab builds expire --account-id ACCOUNT_ID --build-id BUILD_ID
+dab betaGroups addTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
+dab betaGroups removeTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
+```
+
+Beta review submission enables automatic tester notification by default. Use `--no-auto-notify` to disable it.
+
 The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.
