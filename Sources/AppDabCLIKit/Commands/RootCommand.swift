@@ -11,6 +11,7 @@ struct RootCommand: ParsableCommand {
           dab accounts list
           dab apps list --account-id <account-id>
           dab appVersion list --account-id <account-id> --app-id <app-id>
+          dab builds list --account-id <account-id> --app-id <app-id>
           dab reviews get --account-id <account-id> --review-id <review-id>
           dab appVersion create --account-id <account-id> --app-id <app-id> --platform iOS --version 2.0
         """,
@@ -18,6 +19,7 @@ struct RootCommand: ParsableCommand {
             AccountsCommand.self,
             AppsCommand.self,
             AppVersionCommand.self,
+            BuildsCommand.self,
             ReviewsCommand.self
         ]
     )

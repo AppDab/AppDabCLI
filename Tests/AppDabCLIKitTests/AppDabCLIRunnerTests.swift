@@ -136,6 +136,25 @@ struct AppDabCLIRunnerTests {
         #expect(empty.standardOutput.contains("No versions found."))
     }
 
+    @Test func listsBuildsInTextAndSharedJsonWithoutChangingTheAppScope() async throws {
+        let arguments = ["builds", "list", "--account-id", "account-1", "--app-id", "app-1"]
+        let text = await makeRunner().run(arguments: arguments)
+        let json = await makeRunner().run(arguments: arguments + ["--format", "json"])
+        let empty = await makeRunner(dataProvider: .init(returnsEmptyCollections: true)).run(arguments: arguments)
+        let envelope = try JSONSerialization.jsonObject(with: Data(json.standardOutput.utf8)) as? [String: Any]
+        let data = envelope?["data"] as? [String: Any]
+        let builds = data?["builds"] as? [[String: Any]]
+
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("Builds (1 of 1)"))
+        #expect(text.standardOutput.contains("build-1"))
+        #expect(json.exitCode == 0)
+        #expect(envelope?["action"] as? String == "list_builds")
+        #expect(data?["appID"] as? String == "app-1")
+        #expect(builds?.first?["buildID"] as? String == "build-1")
+        #expect(empty.standardOutput.contains("No builds found."))
+    }
+
     @Test func readsAReviewWithItsPublishedResponse() async throws {
         let arguments = ["reviews", "get", "--account-id", "account-1", "--review-id", "review-1"]
         let text = await makeRunner().run(arguments: arguments)
