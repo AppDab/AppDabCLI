@@ -9,7 +9,6 @@ struct AppDabCLIParserTests {
         let catalogIDs = AutomationCLIActionCatalog.all.map(\.id)
 
         #expect(catalogIDs == registeredIDs)
-        #expect(catalogIDs.map(\.rawValue) == AutomationCLIActionCatalog.generatedActionIDs)
         #expect(Set(AutomationCLIActionCatalog.all.map(\.path)).count == catalogIDs.count)
 
         for entry in AutomationCLIActionCatalog.all {

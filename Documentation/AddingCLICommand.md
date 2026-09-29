@@ -8,13 +8,7 @@ Every registered AppDabKit action must have a first class `dab <resource> <verb>
 2. Set `actionID` to the shared action ID and `actionPath` to the flat command path. Use named Swift Argument Parser options and construct the action's typed input.
 3. Invoke only the shared action through `CLIInvocation.read`, `write`, or `directWrite`. Do not call AppDab services directly from a command.
 4. Supply a curated text renderer and retain the shared JSON response envelope. Add or extend the resource group and `RootCommand` registration when needed.
-5. Add the command type and action ID to `Scripts/AutomationCLIActionCatalog.json` in the same order as `AutomationRegistry.standard`, then run the generator:
-
-```sh
-swift Scripts/generate_typed_cli_action_catalog.swift
-```
-
-The generator writes `AutomationCLIActionCatalog+Generated.swift`. Do not edit that file manually.
+5. Add the command type to `AutomationCLIActionCatalog.all` in the same order as `AutomationRegistry.standard`.
 
 ## Verify
 
@@ -23,8 +17,7 @@ Add parser tests for the command path, typed input, and validation failure. Add 
 Run:
 
 ```sh
-swift Scripts/generate_typed_cli_action_catalog.swift --check
 swift test
 ```
 
-The catalog test parses one valid invocation for every registered action and fails when a typed command or generated catalog entry is missing.
+The catalog test parses one valid invocation for every registered action and fails when a typed command is missing.

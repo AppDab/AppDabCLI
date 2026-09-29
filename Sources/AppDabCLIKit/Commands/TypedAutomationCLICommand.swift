@@ -17,6 +17,22 @@ struct AutomationCLIAction: Equatable, Sendable {
 }
 
 enum AutomationCLIActionCatalog {
+    /// Keep this list in the same order as `AutomationRegistry.standard`.
+    static let all: [AutomationCLIAction] = [
+        entry(AccountsListCommand.self),
+        entry(AccountsAddCommand.self),
+        entry(AccountsRemoveCommand.self),
+        entry(AccountsVerifyCommand.self),
+        entry(AppsListCommand.self),
+        entry(AppsGetCommand.self),
+        entry(AppVersionListCommand.self),
+        entry(AppVersionGetCommand.self),
+        entry(BuildsListCommand.self),
+        entry(AppVersionCreateCommand.self),
+        entry(ReviewsListCommand.self),
+        entry(ReviewsGetCommand.self)
+    ]
+
     static func entry<Command: TypedAutomationCLICommand>(
         _ command: Command.Type
     ) -> AutomationCLIAction {
