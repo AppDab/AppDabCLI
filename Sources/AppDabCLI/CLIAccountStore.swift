@@ -19,15 +19,9 @@ final class CLIAccountStore: AutomationAccountStoring, Sendable {
 
     private let keychain: any KeychainProtocol
 
-    #if os(macOS)
     init(keychain: any KeychainProtocol = Keychain.macOSLogin()) {
         self.keychain = keychain
     }
-    #else
-    init(keychain: any KeychainProtocol = Keychain()) {
-        self.keychain = keychain
-    }
-    #endif
 
     func loadAPIKeys() async throws -> [APIKey] {
         let controller = await makeController()

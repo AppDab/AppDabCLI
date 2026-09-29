@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "AppDabCLI",
-    platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
+    platforms: [.macOS(.v15)],
     products: [
         .executable(name: "dab", targets: ["AppDabCLI"]),
         .library(name: "AppDabCLIKit", targets: ["AppDabCLIKit"])
