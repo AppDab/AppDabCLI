@@ -155,6 +155,23 @@ struct AppDabCLIRunnerTests {
         #expect(empty.standardOutput.contains("No builds found."))
     }
 
+    @Test func readsOneBuildInTextAndSharedJSON() async throws {
+        let arguments = ["builds", "get", "--account-id", "account-1", "--build-id", "build-1"]
+        let text = await makeRunner().run(arguments: arguments)
+        let json = await makeRunner().run(arguments: arguments + ["--format", "json"])
+        let envelope = try JSONSerialization.jsonObject(with: Data(json.standardOutput.utf8)) as? [String: Any]
+        let data = envelope?["data"] as? [String: Any]
+        let build = data?["build"] as? [String: Any]
+
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("Build"))
+        #expect(text.standardOutput.contains("42"))
+        #expect(text.standardOutput.contains("build-1"))
+        #expect(json.exitCode == 0)
+        #expect(envelope?["action"] as? String == "get_build")
+        #expect(build?["buildID"] as? String == "build-1")
+    }
+
     @Test func readsAReviewWithItsPublishedResponse() async throws {
         let arguments = ["reviews", "get", "--account-id", "account-1", "--review-id", "review-1"]
         let text = await makeRunner().run(arguments: arguments)

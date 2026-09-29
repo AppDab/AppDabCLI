@@ -93,6 +93,7 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["apps", "list", "--account-id", "account-1"]),
             CLIParser().parse(["apps", "get", "--account-id", "account-1", "--app-id", "app-1"]),
             CLIParser().parse(["builds", "list", "--account-id", "account-1", "--app-id", "app-1"]),
+            CLIParser().parse(["builds", "get", "--account-id", "account-1", "--build-id", "build-1"]),
             CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1"])
         ]
 
@@ -124,10 +125,11 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["apps", "get", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
             CLIParser().parse(["appVersion", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0", "--verbose"]),
             CLIParser().parse(["builds", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
+            CLIParser().parse(["builds", "get", "--account-id", "account-1", "--build-id", "build-1", "--verbose"]),
             CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"])
         ]
 
-        #expect(invocations.map { $0.verbose } == [true, true, true, true, true, true])
+        #expect(invocations.map { $0.verbose } == [true, true, true, true, true, true, true])
     }
 
     @Test func parsesCreateVersionAtTheRootResourcePath() throws {
@@ -159,11 +161,15 @@ struct AppDabCLIParserTests {
         let reviewGet = try CLIParser().parse([
             "reviews", "get", "--account-id", "account-1", "--review-id", "review-1"
         ])
+        let buildGet = try CLIParser().parse([
+            "builds", "get", "--account-id", "account-1", "--build-id", "build-1"
+        ])
 
         #expect(versionList.actionID == .listAppVersions)
         #expect(versionList.format == .json)
         #expect(versionGet.actionID == .getAppVersion)
         #expect(reviewGet.actionID == .getCustomerReview)
+        #expect(buildGet.actionID == .getBuild)
     }
 
     @Test func versionListRejectsAnInvalidState() {

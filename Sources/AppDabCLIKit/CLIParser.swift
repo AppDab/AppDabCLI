@@ -62,6 +62,8 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BuildsCommand.self)
         case ["builds", "list"]:
             RootCommand.helpMessage(for: BuildsListCommand.self)
+        case ["builds", "get"]:
+            RootCommand.helpMessage(for: BuildsGetCommand.self)
         case ["reviews"]:
             RootCommand.helpMessage(for: ReviewsCommand.self)
         case ["reviews", "list"]:
