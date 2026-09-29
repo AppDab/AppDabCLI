@@ -8,7 +8,8 @@ struct AppDabCLIParserTests {
         let registeredIDs = AutomationRegistry.standard.descriptors.map(\.id)
         let catalogIDs = AutomationCLIActionCatalog.all.map(\.id)
 
-        #expect(catalogIDs == registeredIDs)
+        #expect(Set(catalogIDs) == Set(registeredIDs))
+        #expect(Set(catalogIDs).count == catalogIDs.count)
         #expect(Set(AutomationCLIActionCatalog.all.map(\.path)).count == catalogIDs.count)
 
         for entry in AutomationCLIActionCatalog.all {

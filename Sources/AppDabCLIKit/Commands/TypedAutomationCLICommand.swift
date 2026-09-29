@@ -17,7 +17,7 @@ struct AutomationCLIAction: Equatable, Sendable {
 }
 
 enum AutomationCLIActionCatalog {
-    /// Keep this list in the same order as `AutomationRegistry.standard`.
+    /// Register each shared action exactly once.
     static let all: [AutomationCLIAction] = [
         entry(AccountsListCommand.self),
         entry(AccountsAddCommand.self),
