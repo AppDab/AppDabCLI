@@ -1,9 +1,7 @@
 import AppDabAutomation
 import ArgumentParser
 
-struct AccountsRemoveCommand: TypedAutomationCLICommand {
-    static let actionID: AutomationActionID = .removeAccount
-    static let actionPath = ["accounts", "remove"]
+struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "remove",
         abstract: "Remove a configured App Store Connect API key from the local Keychain."

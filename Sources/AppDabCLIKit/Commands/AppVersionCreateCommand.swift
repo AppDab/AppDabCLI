@@ -1,9 +1,7 @@
 import AppDabAutomation
 import ArgumentParser
 
-struct AppVersionCreateCommand: TypedAutomationCLICommand {
-    static let actionID: AutomationActionID = .createAppVersion
-    static let actionPath = ["appVersion", "create"]
+struct AppVersionCreateCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "create",
         abstract: AutomationActionCatalog.descriptor(for: .createAppVersion)?.description

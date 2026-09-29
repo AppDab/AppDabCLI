@@ -2,9 +2,7 @@ import AppDabAutomation
 import AppDabServices
 import ArgumentParser
 
-struct AccountsVerifyCommand: TypedAutomationCLICommand {
-    static let actionID: AutomationActionID = .verifyAccount
-    static let actionPath = ["accounts", "verify"]
+struct AccountsVerifyCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "verify",
         abstract: "Verify a configured App Store Connect API key."

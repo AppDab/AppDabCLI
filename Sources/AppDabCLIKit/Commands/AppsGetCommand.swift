@@ -2,9 +2,7 @@ import AppDabAutomation
 import AppDabServices
 import ArgumentParser
 
-struct AppsGetCommand: TypedAutomationCLICommand {
-    static let actionID: AutomationActionID = .getApp
-    static let actionPath = ["apps", "get"]
+struct AppsGetCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "get",
         abstract: AutomationActionCatalog.descriptor(for: .getApp)?.description ?? "Fetch an app."

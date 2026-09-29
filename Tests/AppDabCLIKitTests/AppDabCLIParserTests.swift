@@ -4,20 +4,6 @@ import AppDabServices
 import Testing
 
 struct AppDabCLIParserTests {
-    @Test func everyRegisteredActionHasATypedCLICommand() throws {
-        let registeredIDs = AutomationRegistry.standard.descriptors.map(\.id)
-        let catalogIDs = AutomationCLIActionCatalog.all.map(\.id)
-
-        #expect(Set(catalogIDs) == Set(registeredIDs))
-        #expect(Set(catalogIDs).count == catalogIDs.count)
-        #expect(Set(AutomationCLIActionCatalog.all.map(\.path)).count == catalogIDs.count)
-
-        for entry in AutomationCLIActionCatalog.all {
-            let invocation = try CLIParser().parse(sampleArguments(for: entry))
-            #expect(invocation.actionID == entry.id)
-        }
-    }
-
     @Test func producesTypedInvocationForAppList() throws {
         let invocation = try CLIParser().parse([
             "apps",
@@ -404,32 +390,5 @@ struct AppDabCLIParserTests {
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
-    }
-}
-
-private func sampleArguments(for entry: AutomationCLIAction) -> [String] {
-    switch entry.id {
-    case .listAccounts:
-        entry.path
-    case .addAccount:
-        entry.path + [
-            "--name", "Primary", "--key-id", "key-1", "--private-key-file", "/tmp/key.p8"
-        ]
-    case .removeAccount, .verifyAccount:
-        entry.path + ["--account-id", "account-1"]
-    case .listApps:
-        entry.path + ["--account-id", "account-1"]
-    case .getApp:
-        entry.path + ["--account-id", "account-1", "--app-id", "app-1"]
-    case .listAppVersions, .listBuilds, .listCustomerReviews:
-        entry.path + ["--account-id", "account-1", "--app-id", "app-1"]
-    case .getAppVersion:
-        entry.path + ["--account-id", "account-1", "--app-id", "app-1", "--version-id", "version-1"]
-    case .createAppVersion:
-        entry.path + ["--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0"]
-    case .getCustomerReview:
-        entry.path + ["--account-id", "account-1", "--review-id", "review-1"]
-    default:
-        fatalError("Add typed CLI sample arguments for \(entry.id.rawValue).")
     }
 }
