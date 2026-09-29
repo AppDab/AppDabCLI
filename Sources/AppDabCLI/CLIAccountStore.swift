@@ -19,7 +19,7 @@ final class CLIAccountStore: AutomationAccountStoring, Sendable {
 
     private let keychain: any KeychainProtocol
 
-    init(keychain: any KeychainProtocol = Keychain()) {
+    init(keychain: any KeychainProtocol = Keychain.macOSLogin()) {
         self.keychain = keychain
     }
 
