@@ -16,7 +16,7 @@
       "location" : "https://github.com/MortenGregersen/AppStoreConnectKit",
       "state" : {
         "branch" : "fix/standalone-keychain-option",
-        "revision" : "3e26d4641e59881c7e1a8e1f376cd7f8fdf9f4a9"
+        "revision" : "6134ff485669e5c65332f47bc597bbccb92e7a4c"
       }
     },
     {
