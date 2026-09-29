@@ -46,7 +46,14 @@ Version list filters (`--platform`, `--state`, `--version`, and `--version-id`) 
 
 Mutation previews and audit records are stored in `~/Library/Application Support/AppDabCLI/dab-audit.sqlite`.
 
-## TestFlight writes
+## Beta groups and TestFlight writes
+
+List beta groups for an app or inspect one group:
+
+```sh
+dab betaGroups list --account-id ACCOUNT_ID --app-id APP_ID
+dab betaGroups get --account-id ACCOUNT_ID --beta-group-id GROUP_ID
+```
 
 These commands use guarded previews. In an interactive terminal, `dab` asks for confirmation. In scripts, run with `--preview`, then use the displayed `--confirm` fingerprint and a unique `--idempotency-key` to commit. If the outcome is uncertain, repeat the command with `--reconcile` and the same fingerprint and key.
 
@@ -57,6 +64,10 @@ dab builds addBetaGroup --account-id ACCOUNT_ID --build-id BUILD_ID --beta-group
 dab builds removeBetaGroup --account-id ACCOUNT_ID --build-id BUILD_ID --beta-group-id GROUP_ID
 dab builds submitForBetaReview --account-id ACCOUNT_ID --build-id BUILD_ID --no-auto-notify
 dab builds expire --account-id ACCOUNT_ID --build-id BUILD_ID
+dab betaGroups create --account-id ACCOUNT_ID --app-id APP_ID --name "Early Access" --internal
+dab betaGroups update --account-id ACCOUNT_ID --beta-group-id GROUP_ID --feedback-enabled false
+dab betaGroups addBuild --account-id ACCOUNT_ID --beta-group-id GROUP_ID --build-id BUILD_ID
+dab betaGroups removeBuild --account-id ACCOUNT_ID --beta-group-id GROUP_ID --build-id BUILD_ID
 dab betaGroups addTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
 dab betaGroups removeTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
 ```

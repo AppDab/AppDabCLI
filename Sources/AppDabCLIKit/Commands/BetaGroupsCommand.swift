@@ -4,8 +4,13 @@ import ArgumentParser
 struct BetaGroupsCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "betaGroups",
-        abstract: "Work with beta group testers.",
-        subcommands: [BetaGroupsAddTesterCommand.self, BetaGroupsRemoveTesterCommand.self]
+        abstract: "Work with an app's beta groups, builds, and testers.",
+        subcommands: [
+            BetaGroupsListCommand.self, BetaGroupsGetCommand.self,
+            BetaGroupsCreateCommand.self, BetaGroupsUpdateCommand.self,
+            BetaGroupsAddBuildCommand.self, BetaGroupsRemoveBuildCommand.self,
+            BetaGroupsAddTesterCommand.self, BetaGroupsRemoveTesterCommand.self
+        ]
     )
 }
 

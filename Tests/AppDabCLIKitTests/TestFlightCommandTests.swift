@@ -7,6 +7,68 @@ import Testing
 
 @Suite("TestFlight CLI commands")
 struct TestFlightCommandTests {
+    @Test func betaGroupReadsRenderTextAndStructuredJSON() async throws {
+        let runner = makeRunner(TestFlightCLIProvider())
+        let listed = await runner.run(arguments: [
+            "betaGroups", "list", "--account-id", "account-1", "--app-id", "app-1"
+        ])
+        let detail = await runner.run(arguments: [
+            "betaGroups", "get", "--account-id", "account-1", "--beta-group-id", "group-1", "--format", "json"
+        ])
+        let envelope = try #require(JSONSerialization.jsonObject(with: Data(detail.standardOutput.utf8)) as? [String: Any])
+        let data = try #require(envelope["data"] as? [String: Any])
+        let group = try #require(data["betaGroup"] as? [String: Any])
+
+        #expect(listed.exitCode == 0)
+        #expect(listed.standardOutput.contains("Early Access"))
+        #expect(detail.exitCode == 0)
+        #expect(group["betaGroupID"] as? String == "group-1")
+    }
+
+    @Test func betaGroupCreateAndUpdateUseGuardedCommands() async throws {
+        let provider = TestFlightCLIProvider()
+        let executor = makeExecutor(provider)
+        let runner = CLIRunner(executor: executor)
+        let createInput = CreateBetaGroupInput(accountID: "account-1", appID: "app-1", name: "New Group", isInternalGroup: true)
+        let createPlan = try await executor.preview(CreateBetaGroupAction.self, input: createInput)
+        let created = await runner.run(arguments: [
+            "betaGroups", "create", "--account-id", "account-1", "--app-id", "app-1", "--name", "New Group", "--internal",
+            "--confirm", createPlan.confirmationFingerprint, "--idempotency-key", "create-group"
+        ])
+        #expect(created.exitCode == 0)
+        #expect(created.standardOutput.contains("New Group"))
+        #expect(await provider.mutationCount == 1)
+
+        let updateInput = UpdateBetaGroupInput(accountID: "account-1", betaGroupID: "group-1", changes: .init(feedbackEnabled: false))
+        let updatePlan = try await executor.preview(UpdateBetaGroupAction.self, input: updateInput)
+        let updated = await runner.run(arguments: [
+            "betaGroups", "update", "--account-id", "account-1", "--beta-group-id", "group-1", "--feedback-enabled", "false",
+            "--confirm", updatePlan.confirmationFingerprint, "--idempotency-key", "update-group"
+        ])
+        #expect(updated.exitCode == 0)
+        #expect(await provider.feedbackEnabled == false)
+        #expect(await provider.mutationCount == 2)
+    }
+
+    @Test func betaGroupBuildWriteRecoversAfterLostResponse() async throws {
+        let provider = TestFlightCLIProvider(failAfterMutation: true)
+        let executor = makeExecutor(provider)
+        let input = BetaGroupBuildInput(accountID: "account-1", betaGroupID: "group-1", buildID: "build-1")
+        let plan = try await executor.preview(AddBuildToBetaGroupAction.self, input: input)
+        let runner = CLIRunner(executor: executor)
+        let arguments = [
+            "betaGroups", "addBuild", "--account-id", "account-1", "--beta-group-id", "group-1", "--build-id", "build-1",
+            "--confirm", plan.confirmationFingerprint, "--idempotency-key", "add-build"
+        ]
+        let uncertain = await runner.run(arguments: arguments)
+        let recovered = await runner.run(arguments: arguments + ["--reconcile"])
+
+        #expect(uncertain.exitCode == 1)
+        #expect(recovered.exitCode == 0)
+        #expect(recovered.standardOutput.contains("Beta Group Build"))
+        #expect(await provider.mutationCount == 1)
+    }
+
     @Test func allNewCommandsProduceGuardedPreviews() async throws {
         let provider = TestFlightCLIProvider()
         let runner = makeRunner(provider)
@@ -106,6 +168,8 @@ private actor TestFlightCLIProvider: AutomationDataProviding {
     private var buildTesters = ["tester-1"]
     private var buildGroups: [String] = []
     private var groupTesters = ["tester-1"]
+    private var betaGroups: [BetaGroupSummary] = [.init(betaGroupID: "group-1", name: "Early Access", feedbackEnabled: true)]
+    private var groupBuilds: [String] = []
     private var submissionID: String?
     private var notifications: Bool? = true
     private var expired = false
@@ -116,6 +180,43 @@ private actor TestFlightCLIProvider: AutomationDataProviding {
 
     var buildTesterIDs: [String] { buildTesters }
     var autoNotifyEnabled: Bool? { notifications }
+    var feedbackEnabled: Bool? { betaGroups.first(where: { $0.betaGroupID == "group-1" })?.feedbackEnabled }
+
+    func listBetaGroups(accountID: String, appID: String, pagination: PaginationRequest) async throws -> BetaGroupList {
+        .init(appID: appID, betaGroups: betaGroups, pagination: .init(limit: try pagination.resolvedLimit(), total: betaGroups.count, nextCursor: nil))
+    }
+
+    func getBetaGroup(accountID: String, betaGroupID: String) async throws -> BetaGroupSummary {
+        guard let group = betaGroups.first(where: { $0.betaGroupID == betaGroupID }) else { throw ServiceError.upstream("Beta group not found.") }
+        return group
+    }
+
+    func createBetaGroup(accountID: String, appID: String, name: String, isInternalGroup: Bool, hasAccessToAllBuilds: Bool?) async throws -> BetaGroupSummary {
+        mutationCount += 1
+        let group = BetaGroupSummary(betaGroupID: "group-2", name: name, isInternalGroup: isInternalGroup, hasAccessToAllBuilds: hasAccessToAllBuilds)
+        betaGroups.append(group)
+        return group
+    }
+
+    func updateBetaGroup(accountID: String, betaGroupID: String, changes: BetaGroupChanges) async throws -> BetaGroupSummary {
+        mutationCount += 1
+        let group = try await getBetaGroup(accountID: accountID, betaGroupID: betaGroupID)
+        let updated = BetaGroupSummary(betaGroupID: betaGroupID, name: changes.name ?? group.name, feedbackEnabled: changes.feedbackEnabled ?? group.feedbackEnabled)
+        betaGroups.removeAll { $0.betaGroupID == betaGroupID }
+        betaGroups.append(updated)
+        return updated
+    }
+
+    func betaGroupBuildMembership(accountID: String, betaGroupID: String, buildID: String) async throws -> BetaGroupBuildMembership {
+        .init(betaGroup: try await getBetaGroup(accountID: accountID, betaGroupID: betaGroupID), buildID: buildID, isMember: groupBuilds.contains(buildID))
+    }
+
+    func mutateBetaGroupBuild(accountID: String, betaGroupID: String, buildID: String, add: Bool) async throws -> BetaGroupBuildMembership {
+        mutationCount += 1
+        if add { groupBuilds.append(buildID) } else { groupBuilds.removeAll { $0 == buildID } }
+        if failAfterMutation { throw ServiceError.upstream("Response lost after applying mutation.") }
+        return try await betaGroupBuildMembership(accountID: accountID, betaGroupID: betaGroupID, buildID: buildID)
+    }
 
     nonisolated func accountStore() throws -> any AutomationAccountStoring { try MockAutomationDataProvider().accountStore() }
     func listAccounts() async throws -> [AccountSummary] { try await base.listAccounts() }

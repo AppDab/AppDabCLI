@@ -193,6 +193,39 @@ struct AppDabCLIParserTests {
         }
     }
 
+    @Test func parsesBetaGroupCommandsWithNamedOptions() throws {
+        let app = ["--account-id", "account-1", "--app-id", "app-1"]
+        let group = ["--account-id", "account-1", "--beta-group-id", "group-1"]
+        let commands: [([String], AutomationActionID)] = [
+            (["betaGroups", "list"] + app + ["--limit", "25"], .listBetaGroups),
+            (["betaGroups", "get"] + group, .getBetaGroup),
+            (["betaGroups", "create"] + app + ["--name", "Early Access", "--internal"], .createBetaGroup),
+            (["betaGroups", "update"] + group + ["--feedback-enabled", "false"], .updateBetaGroup),
+            (["betaGroups", "addBuild"] + group + ["--build-id", "build-1"], .addBuildToBetaGroup),
+            (["betaGroups", "removeBuild"] + group + ["--build-id", "build-1"], .removeBuildFromBetaGroup)
+        ]
+
+        for (arguments, actionID) in commands {
+            #expect(try CLIParser().parse(arguments).actionID == actionID)
+        }
+    }
+
+    @Test func betaGroupCommandsRejectMissingOrInvalidFields() {
+        let app = ["--account-id", "account-1", "--app-id", "app-1"]
+        let group = ["--account-id", "account-1", "--beta-group-id", "group-1"]
+        for arguments in [
+            ["betaGroups", "list", "--account-id", "account-1"],
+            ["betaGroups", "list"] + app + ["--cursor", "next"],
+            ["betaGroups", "create"] + app + ["--name", " ", "--internal"],
+            ["betaGroups", "create"] + app + ["--name", "External", "--access-to-all-builds", "true"],
+            ["betaGroups", "update"] + group,
+            ["betaGroups", "update"] + group + ["--public-link-limit", "0"],
+            ["betaGroups", "addBuild"] + group
+        ] {
+            #expect(throws: CLIUsageError.self) { try CLIParser().parse(arguments) }
+        }
+    }
+
     @Test func TestFlightCommandsRequireNamedTargetOptions() {
         for arguments in [
             ["builds", "addTester", "--account-id", "account-1", "--build-id", "build-1"],
