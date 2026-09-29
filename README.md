@@ -2,7 +2,7 @@
 
 `dab` is the command line interface for App Store Connect automation built on AppDabKit.
 
-Contributors adding actions should follow [Adding a Typed CLI Command](Documentation/AddingCLICommand.md). Every registered action requires a typed named CLI command.
+Contributors adding a CLI command for an AppDabKit action should follow [Adding a Typed CLI Command](Documentation/AddingCLICommand.md). Each CLI command uses named options and a typed action input.
 
 ## Build and test
 
