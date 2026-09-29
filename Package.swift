@@ -11,7 +11,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/AppDab/AppDabKit", branch: "main"),
-        .package(url: "https://github.com/MortenGregersen/AppStoreConnectKit", branch: "fix/standalone-keychain-option"),
+        .package(url: "https://github.com/MortenGregersen/AppStoreConnectKit", from: "4.2.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
     ],
     targets: [
