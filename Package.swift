@@ -4,14 +4,14 @@ import PackageDescription
 
 let package = Package(
     name: "AppDabCLI",
-    platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
+    platforms: [.macOS(.v15)],
     products: [
         .executable(name: "dab", targets: ["AppDabCLI"]),
         .library(name: "AppDabCLIKit", targets: ["AppDabCLIKit"])
     ],
     dependencies: [
         .package(url: "https://github.com/AppDab/AppDabKit", branch: "main"),
-        .package(url: "https://github.com/MortenGregersen/AppStoreConnectKit", from: "4.1.0"),
+        .package(url: "https://github.com/MortenGregersen/AppStoreConnectKit", from: "4.2.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
     ],
     targets: [

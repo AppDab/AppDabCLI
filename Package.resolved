@@ -1,5 +1,5 @@
 {
-  "originHash" : "75cb69fd85d5ab10b7c5f01045903da154cadd9ea593ffbe93a0c3c976ab0e1d",
+  "originHash" : "1529c30300828f162d0ec1fc11955713d297b5eecc9c47ab677e41bde75d219b",
   "pins" : [
     {
       "identity" : "appdabkit",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MortenGregersen/AppStoreConnectKit",
       "state" : {
-        "revision" : "9d247652ad533e4797367c0e8a03b394d42de619",
-        "version" : "4.1.0"
+        "revision" : "8a5b88d0113b641ce6adb6c87eb97c9f3c155f53",
+        "version" : "4.2.0"
       }
     },
     {
