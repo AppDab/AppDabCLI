@@ -17,5 +17,3 @@ Run:
 ```sh
 swift test
 ```
-
-Add parser tests for the chosen command path and a representative valid invocation.

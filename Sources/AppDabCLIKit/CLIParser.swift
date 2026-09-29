@@ -64,6 +64,24 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BuildsListCommand.self)
         case ["builds", "get"]:
             RootCommand.helpMessage(for: BuildsGetCommand.self)
+        case ["builds", "addTester"]:
+            RootCommand.helpMessage(for: BuildsAddTesterCommand.self)
+        case ["builds", "removeTester"]:
+            RootCommand.helpMessage(for: BuildsRemoveTesterCommand.self)
+        case ["builds", "addBetaGroup"]:
+            RootCommand.helpMessage(for: BuildsAddBetaGroupCommand.self)
+        case ["builds", "removeBetaGroup"]:
+            RootCommand.helpMessage(for: BuildsRemoveBetaGroupCommand.self)
+        case ["builds", "submitForBetaReview"]:
+            RootCommand.helpMessage(for: BuildsSubmitForBetaReviewCommand.self)
+        case ["builds", "expire"]:
+            RootCommand.helpMessage(for: BuildsExpireCommand.self)
+        case ["betaGroups"]:
+            RootCommand.helpMessage(for: BetaGroupsCommand.self)
+        case ["betaGroups", "addTester"]:
+            RootCommand.helpMessage(for: BetaGroupsAddTesterCommand.self)
+        case ["betaGroups", "removeTester"]:
+            RootCommand.helpMessage(for: BetaGroupsRemoveTesterCommand.self)
         case ["reviews"]:
             RootCommand.helpMessage(for: ReviewsCommand.self)
         case ["reviews", "list"]:

@@ -172,6 +172,36 @@ struct AppDabCLIParserTests {
         #expect(buildGet.actionID == .getBuild)
     }
 
+    @Test func parsesAllTestFlightWriteCommandsAsGuardedActions() throws {
+        let build = ["--account-id", "account-1", "--build-id", "build-1"]
+        let group = ["--account-id", "account-1", "--beta-group-id", "group-1"]
+        let commands: [([String], AutomationActionID)] = [
+            (["builds", "addTester"] + build + ["--tester-id", "tester-1"], .addIndividualTesterToBuild),
+            (["builds", "removeTester"] + build + ["--tester-id", "tester-1"], .removeIndividualTesterFromBuild),
+            (["builds", "addBetaGroup"] + build + ["--beta-group-id", "group-1"], .addBetaGroupToBuild),
+            (["builds", "removeBetaGroup"] + build + ["--beta-group-id", "group-1"], .removeBetaGroupFromBuild),
+            (["builds", "submitForBetaReview"] + build + ["--no-auto-notify"], .submitBuildForBetaReview),
+            (["builds", "expire"] + build, .expireBuild),
+            (["betaGroups", "addTester"] + group + ["--tester-id", "tester-1"], .addTesterToBetaGroup),
+            (["betaGroups", "removeTester"] + group + ["--tester-id", "tester-1"], .removeTesterFromBetaGroup)
+        ]
+
+        for (arguments, actionID) in commands {
+            let invocation = try CLIParser().parse(arguments)
+            #expect(invocation.actionID == actionID)
+            #expect(invocation.executionContext.mode == .execute)
+        }
+    }
+
+    @Test func TestFlightCommandsRequireNamedTargetOptions() {
+        for arguments in [
+            ["builds", "addTester", "--account-id", "account-1", "--build-id", "build-1"],
+            ["betaGroups", "removeTester", "--account-id", "account-1", "--beta-group-id", "group-1"]
+        ] {
+            #expect(throws: CLIUsageError.self) { try CLIParser().parse(arguments) }
+        }
+    }
+
     @Test func versionListRejectsAnInvalidState() {
         do {
             _ = try CLIParser().parse([
