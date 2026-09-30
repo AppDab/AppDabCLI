@@ -94,6 +94,24 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BetaGroupsAddTesterCommand.self)
         case ["betaGroups", "removeTester"]:
             RootCommand.helpMessage(for: BetaGroupsRemoveTesterCommand.self)
+        case ["betaAppTesting"]:
+            RootCommand.helpMessage(for: BetaAppTestingCommand.self)
+        case ["betaAppTesting", "listLocalizations"]:
+            RootCommand.helpMessage(for: BetaAppTestingListLocalizationsCommand.self)
+        case ["betaAppTesting", "createLocalization"]:
+            RootCommand.helpMessage(for: BetaAppTestingCreateLocalizationCommand.self)
+        case ["betaAppTesting", "updateLocalization"]:
+            RootCommand.helpMessage(for: BetaAppTestingUpdateLocalizationCommand.self)
+        case ["betaAppTesting", "deleteLocalization"]:
+            RootCommand.helpMessage(for: BetaAppTestingDeleteLocalizationCommand.self)
+        case ["betaAppTesting", "getReviewDetail"]:
+            RootCommand.helpMessage(for: BetaAppTestingGetReviewDetailCommand.self)
+        case ["betaAppTesting", "updateReviewDetail"]:
+            RootCommand.helpMessage(for: BetaAppTestingUpdateReviewDetailCommand.self)
+        case ["betaAppTesting", "getLicenseAgreement"]:
+            RootCommand.helpMessage(for: BetaAppTestingGetLicenseAgreementCommand.self)
+        case ["betaAppTesting", "updateLicenseAgreement"]:
+            RootCommand.helpMessage(for: BetaAppTestingUpdateLicenseAgreementCommand.self)
         case ["reviews"]:
             RootCommand.helpMessage(for: ReviewsCommand.self)
         case ["reviews", "list"]:

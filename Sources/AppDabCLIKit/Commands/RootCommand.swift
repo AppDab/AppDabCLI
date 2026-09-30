@@ -23,6 +23,7 @@ struct RootCommand: ParsableCommand {
             AppVersionCommand.self,
             BuildsCommand.self,
             BetaGroupsCommand.self,
+            BetaAppTestingCommand.self,
             ReviewsCommand.self,
         ],
     )
