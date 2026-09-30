@@ -24,6 +24,7 @@ struct RootCommand: ParsableCommand {
             BuildsCommand.self,
             BetaGroupsCommand.self,
             BetaTestersCommand.self,
+            BetaBuildLocalizationsCommand.self,
             ReviewsCommand.self,
         ],
     )
