@@ -12,10 +12,6 @@ swift test
 swift run dab --help
 ```
 
-## Formatting
-
-Install SwiftFormat with `brew install swiftformat`, then enable the commit hook once with `git config core.hooksPath .githooks`. The hook formats staged Swift files before each commit. Run `swiftformat Sources Tests Package.swift` to format the whole package, or add `--lint` to check it without changing files. Pull requests run the same lint check.
-
 ## Accounts
 
 The standalone CLI stores App Store Connect API keys in the user's macOS login Keychain under its own `AppDabCLI` service. These credentials stay local to this Mac rather than syncing through iCloud Keychain. The CLI does not require AppDab, an app group entitlement, or an AppDab signing certificate, including when launched with `swift run`.
