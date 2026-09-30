@@ -9,6 +9,7 @@ struct BuildsCommand: ParsableCommand {
             BuildsAddTesterCommand.self, BuildsRemoveTesterCommand.self,
             BuildsAddBetaGroupCommand.self, BuildsRemoveBetaGroupCommand.self,
             BuildsSubmitForBetaReviewCommand.self, BuildsExpireCommand.self,
+            BuildsSetExportComplianceCommand.self,
         ],
         defaultSubcommand: BuildsListCommand.self,
     )
