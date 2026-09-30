@@ -10,11 +10,11 @@ enum StandaloneAutomationExecutor {
         let services = LiveServices(accountProvider: accountProvider)
         let dataProvider = ServiceAutomationDataProvider(
             services: services,
-            accountStore: accountStore
+            accountStore: accountStore,
         )
         return Executor(
             dataProvider: dataProvider,
-            auditStore: AutomationSQLiteAuditStore(databaseURL: auditDatabaseURL())
+            auditStore: AutomationSQLiteAuditStore(databaseURL: auditDatabaseURL()),
         )
     }
 

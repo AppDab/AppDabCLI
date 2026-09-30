@@ -17,7 +17,7 @@ public struct CLIInvocation: Sendable {
         executionContext: AutomationExecutionContext = .init(),
         originalArguments: [String] = [],
         typedExecution: @escaping @Sendable (Executor, AutomationExecutionContext) async throws -> CLITypedResult,
-        operationDescription: String? = nil
+        operationDescription: String? = nil,
     ) {
         self.actionID = actionID
         self.format = format
@@ -36,7 +36,7 @@ public struct CLIInvocation: Sendable {
             executionContext: executionContext,
             originalArguments: arguments,
             typedExecution: typedExecution,
-            operationDescription: operationDescription
+            operationDescription: operationDescription,
         )
     }
 }
@@ -51,7 +51,7 @@ struct CLITypedResult: Sendable {
         response: AutomationResponse,
         render: (@Sendable (TextStyle) throws -> String)?,
         pagination: PaginationMetadata?,
-        jsonResponse: (@Sendable () throws -> AutomationResponse)? = nil
+        jsonResponse: (@Sendable () throws -> AutomationResponse)? = nil,
     ) {
         self.response = response
         self.render = render
@@ -67,7 +67,7 @@ extension CLIInvocation {
         format: CLIOutputFormat,
         verbose: Bool,
         render: @escaping @Sendable (Action.Output, TextStyle) throws -> String,
-        pagination: @escaping @Sendable (Action.Output) -> PaginationMetadata? = { _ in nil }
+        pagination: @escaping @Sendable (Action.Output) -> PaginationMetadata? = { _ in nil },
     ) -> Self {
         .init(
             actionID: actionType.descriptor.id,
@@ -79,7 +79,7 @@ extension CLIInvocation {
                 return .init(
                     response: .init(
                         actionID: actionType.descriptor.id,
-                        summary: action.summary(for: output), data: .object([:])
+                        summary: action.summary(for: output), data: .object([:]),
                     ),
                     render: { style in try render(output, style) },
                     pagination: pagination(output),
@@ -87,11 +87,11 @@ extension CLIInvocation {
                         try .init(
                             actionID: actionType.descriptor.id,
                             summary: action.summary(for: output),
-                            data: action.data(for: output)
+                            data: action.data(for: output),
                         )
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 
@@ -102,7 +102,7 @@ extension CLIInvocation {
         verbose: Bool,
         executionContext: AutomationExecutionContext,
         operationDescription: String,
-        render: @escaping @Sendable (Action.Output, TextStyle) throws -> String
+        render: @escaping @Sendable (Action.Output, TextStyle) throws -> String,
     ) -> Self {
         .init(
             actionID: actionType.descriptor.id,
@@ -116,19 +116,19 @@ extension CLIInvocation {
                     let plan = try await executor.preview(actionType, input: input)
                     result = .init(response: .init(
                         actionID: actionType.descriptor.id, summary: plan.redactedSummary,
-                        data: .object([:]), plan: plan
+                        data: .object([:]), plan: plan,
                     ), output: nil)
                 case .commit:
                     result = try await executor.commitResult(
                         actionType, input: input,
                         confirmationFingerprint: context.confirmationFingerprint ?? "",
-                        idempotencyKey: context.idempotencyKey ?? ""
+                        idempotencyKey: context.idempotencyKey ?? "",
                     )
                 case .reconcile:
                     result = try await executor.reconcileResult(
                         actionType, input: input,
                         confirmationFingerprint: context.confirmationFingerprint ?? "",
-                        idempotencyKey: context.idempotencyKey ?? ""
+                        idempotencyKey: context.idempotencyKey ?? "",
                     )
                 }
                 let rendered = result.output.map { output in
@@ -136,7 +136,7 @@ extension CLIInvocation {
                 }
                 return .init(response: result.response, render: rendered, pagination: nil)
             },
-            operationDescription: operationDescription
+            operationDescription: operationDescription,
         )
     }
 
@@ -145,7 +145,7 @@ extension CLIInvocation {
         input: Action.Input,
         format: CLIOutputFormat,
         verbose: Bool,
-        render: @escaping @Sendable (Action.Output, TextStyle) throws -> String
+        render: @escaping @Sendable (Action.Output, TextStyle) throws -> String,
     ) -> Self {
         .init(
             actionID: actionType.descriptor.id,
@@ -158,7 +158,7 @@ extension CLIInvocation {
                     response: .init(
                         actionID: actionType.descriptor.id,
                         summary: action.summary(for: output),
-                        data: .object([:])
+                        data: .object([:]),
                     ),
                     render: { style in try render(output, style) },
                     pagination: nil,
@@ -166,11 +166,11 @@ extension CLIInvocation {
                         try .init(
                             actionID: actionType.descriptor.id,
                             summary: action.summary(for: output),
-                            data: action.data(for: output)
+                            data: action.data(for: output),
                         )
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 }

@@ -11,7 +11,7 @@ struct AppVersionsTextRenderer {
                 headers: ["Version", "Platform", "State", "Created", "Version ID"],
                 rows: list.versions.map {
                     [$0.version, $0.platform, $0.state, $0.createdDate.formatted(.iso8601), $0.versionID]
-                }
+                },
             ).render(style: style))
         }
         return sections.joined(separator: "\n\n")

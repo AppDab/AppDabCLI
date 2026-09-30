@@ -5,7 +5,7 @@ import ArgumentParser
 struct AppsListCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "list",
-        abstract: AutomationActionCatalog.descriptor(for: .listApps)?.description ?? "List apps for an account."
+        abstract: AutomationActionCatalog.descriptor(for: .listApps)?.description ?? "List apps for an account.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -41,7 +41,7 @@ struct AppsListCommand: ParsableCommand, InvokingCommand {
             format: output.format,
             verbose: output.verbose,
             render: { apps, style in AppsTextRenderer().render(apps, style: style) },
-            pagination: { $0.pagination }
+            pagination: { $0.pagination },
         )
     }
 }

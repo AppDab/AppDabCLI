@@ -4,7 +4,7 @@ import ArgumentParser
 struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "remove",
-        abstract: "Remove a configured App Store Connect API key from the local Keychain."
+        abstract: "Remove a configured App Store Connect API key from the local Keychain.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier to remove.")
@@ -24,7 +24,7 @@ struct AccountsRemoveCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID),
             format: output.format,
             verbose: output.verbose,
-            render: { account, style in AccountRemovalTextRenderer().render(account, style: style) }
+            render: { account, style in AccountRemovalTextRenderer().render(account, style: style) },
         )
     }
 }

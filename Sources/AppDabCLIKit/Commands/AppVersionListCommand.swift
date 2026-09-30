@@ -6,7 +6,7 @@ struct AppVersionListCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "list",
         abstract: AutomationActionCatalog.descriptor(for: .listAppVersions)?.description
-            ?? "List versions for an app."
+            ?? "List versions for an app.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -60,14 +60,14 @@ struct AppVersionListCommand: ParsableCommand, InvokingCommand {
                     platforms: platform.map(\.value),
                     states: state.map(\.value),
                     versions: version,
-                    versionIDs: versionID
+                    versionIDs: versionID,
                 ),
-                pagination: .init(cursor: cursor, limit: limit)
+                pagination: .init(cursor: cursor, limit: limit),
             ),
             format: output.format,
             verbose: output.verbose,
             render: { versions, style in AppVersionsTextRenderer().render(versions, style: style) },
-            pagination: { $0.pagination }
+            pagination: { $0.pagination },
         )
     }
 }

@@ -14,7 +14,7 @@ public final class CLIRunner: Sendable {
         executor: Executor,
         outputCapabilities: CLIOutputCapabilities = .plain,
         interaction: (any CLIInteraction)? = nil,
-        makeIdempotencyKey: @escaping @Sendable () -> String = { UUID().uuidString.lowercased() }
+        makeIdempotencyKey: @escaping @Sendable () -> String = { UUID().uuidString.lowercased() },
     ) {
         self.parser = parser
         self.executor = executor
@@ -32,7 +32,7 @@ public final class CLIRunner: Sendable {
         } catch let usageError as CLIUsageError {
             if format(from: arguments) == .json {
                 return .init(exitCode: 2, standardError: Self.fallbackJSONError(
-                    code: "invalid_arguments", message: usageError.message
+                    code: "invalid_arguments", message: usageError.message,
                 ))
             }
             return .init(exitCode: 2, standardError: usageError.message)
@@ -47,7 +47,7 @@ public final class CLIRunner: Sendable {
                 return try await confirmInteractively(
                     preview: response,
                     invocation: invocation,
-                    commandArguments: arguments
+                    commandArguments: arguments,
                 )
             }
             return renderedResult(response, invocation: invocation, typedResult: typedResult)
@@ -58,7 +58,7 @@ public final class CLIRunner: Sendable {
 
     private func shouldConfirmInteractively(
         response: AutomationResponse,
-        invocation: CLIInvocation
+        invocation: CLIInvocation,
     ) -> Bool {
         response.plan != nil
             && invocation.format == .text
@@ -69,7 +69,7 @@ public final class CLIRunner: Sendable {
     private func confirmInteractively(
         preview: AutomationResponse,
         invocation: CLIInvocation,
-        commandArguments: [String]
+        commandArguments: [String],
     ) async throws -> CLIResult {
         guard let plan = preview.plan, let interaction else {
             throw AutomationExecutionError.persistence("An interactive confirmation is missing its mutation plan.")
@@ -84,7 +84,7 @@ public final class CLIRunner: Sendable {
             executablePath: interaction.executablePath,
             commandArguments: commandArguments,
             confirmationFingerprint: plan.confirmationFingerprint,
-            idempotencyKey: idempotencyKey
+            idempotencyKey: idempotencyKey,
         )
         interaction.writeToStandardError("""
         Recovery command, if the outcome is indeterminate:
@@ -96,14 +96,15 @@ public final class CLIRunner: Sendable {
             let context = AutomationExecutionContext(
                 mode: .commit,
                 confirmationFingerprint: plan.confirmationFingerprint,
-                idempotencyKey: idempotencyKey
+                idempotencyKey: idempotencyKey,
             )
             let typedResult = try await invocation.typedExecution(executor, context)
             let committed = typedResult.response
             return renderedResult(committed, invocation: invocation, typedResult: typedResult)
         } catch {
             if let executionError = error as? AutomationExecutionError,
-               executionError == .indeterminate {
+               executionError == .indeterminate
+            {
                 interaction.writeToStandardError("The outcome is indeterminate. Run the recovery command above before retrying.\n")
             }
             throw error
@@ -131,16 +132,16 @@ public final class CLIRunner: Sendable {
         executablePath: String,
         commandArguments: [String],
         confirmationFingerprint: String,
-        idempotencyKey: String
+        idempotencyKey: String,
     ) -> String {
         CLICommandFormatter.render(
             arguments: commandArguments + ["--confirm", confirmationFingerprint, "--idempotency-key", idempotencyKey],
-            executable: executablePath
+            executable: executablePath,
         )
     }
 
     private func renderedResult(
-        _ response: AutomationResponse, invocation: CLIInvocation, typedResult: CLITypedResult
+        _ response: AutomationResponse, invocation: CLIInvocation, typedResult: CLITypedResult,
     ) -> CLIResult {
         do {
             return try .init(exitCode: 0, standardOutput: output(for: response, invocation: invocation, typedResult: typedResult))
@@ -162,7 +163,7 @@ public final class CLIRunner: Sendable {
     private func output(
         for result: AutomationResponse,
         invocation: CLIInvocation,
-        typedResult: CLITypedResult
+        typedResult: CLITypedResult,
     ) throws -> String {
         switch invocation.format {
         case .json:
@@ -173,15 +174,15 @@ public final class CLIRunner: Sendable {
                 let commitCommand = CLICommandFormatter.render(
                     arguments: invocation.originalArguments + [
                         "--confirm", plan.confirmationFingerprint,
-                        "--idempotency-key", makeIdempotencyKey()
+                        "--idempotency-key", makeIdempotencyKey(),
                     ],
                     executable: executable,
-                    reconcile: false
+                    reconcile: false,
                 )
                 return MutationPlanTextRenderer().render(
                     plan,
                     commitCommand: commitCommand,
-                    style: .init(supportsColor: outputCapabilities.standardOutputSupportsColor)
+                    style: .init(supportsColor: outputCapabilities.standardOutputSupportsColor),
                 )
             }
             guard let render = typedResult.render else {
@@ -189,11 +190,11 @@ public final class CLIRunner: Sendable {
             }
             let style = TextStyle(
                 supportsColor: outputCapabilities.standardOutputSupportsColor,
-                maximumWidth: outputCapabilities.standardOutputMaximumWidth
+                maximumWidth: outputCapabilities.standardOutputMaximumWidth,
             )
             let rendered = try render(style)
             guard let continuationCommand = continuationCommand(
-                invocation: invocation, pagination: typedResult.pagination
+                invocation: invocation, pagination: typedResult.pagination,
             ) else {
                 return rendered
             }
@@ -202,7 +203,7 @@ public final class CLIRunner: Sendable {
     }
 
     private func continuationCommand(
-        invocation: CLIInvocation, pagination: PaginationMetadata?
+        invocation: CLIInvocation, pagination: PaginationMetadata?,
     ) -> String? {
         guard let pagination, let cursor = pagination.nextCursor
         else {
@@ -211,12 +212,12 @@ public final class CLIRunner: Sendable {
         let arguments = continuationArguments(
             from: invocation.originalArguments,
             cursor: cursor,
-            limit: pagination.limit
+            limit: pagination.limit,
         )
         return CLICommandFormatter.render(
             arguments: arguments,
             executable: interaction?.executablePath ?? "dab",
-            reconcile: false
+            reconcile: false,
         )
     }
 
@@ -244,8 +245,8 @@ public final class CLIRunner: Sendable {
             let value = JSONValue.object([
                 "error": .object([
                     "code": .string(presentedError.code),
-                    "message": .string(presentedError.message)
-                ])
+                    "message": .string(presentedError.message),
+                ]),
             ])
             let output = (try? JSONValueEncoding.string(from: value)) ?? Self.fallbackJSONError(code: presentedError.code, message: presentedError.message)
             return .init(exitCode: 1, standardError: output)
@@ -259,7 +260,7 @@ public final class CLIRunner: Sendable {
             }
             return .init(
                 exitCode: 1,
-                standardError: output
+                standardError: output,
             )
         }
     }
@@ -271,15 +272,15 @@ public final class CLIRunner: Sendable {
             let value = JSONValue.object([
                 "error": .object([
                     "code": .string(presentedError.code),
-                    "message": .string(presentedError.message)
-                ])
+                    "message": .string(presentedError.message),
+                ]),
             ])
             let output = (try? JSONValueEncoding.string(from: value)) ?? Self.fallbackJSONError(code: presentedError.code, message: presentedError.message)
             return .init(exitCode: 1, standardError: output)
         case .text:
             return .init(
                 exitCode: 1,
-                standardError: "\(styledErrorLabel("Could not run the command."))\n\nCheck the command and try again."
+                standardError: "\(styledErrorLabel("Could not run the command."))\n\nCheck the command and try again.",
             )
         }
     }
@@ -315,11 +316,12 @@ public final class CLIRunner: Sendable {
         let object: [String: Any] = [
             "error": [
                 "code": code,
-                "message": message
-            ]
+                "message": message,
+            ],
         ]
         guard JSONSerialization.isValidJSONObject(object),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]) else {
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
+        else {
             return #"{"error":{"code":"encoding_failed","message":"Failed to encode error."}}"#
         }
         return String(decoding: data, as: UTF8.self)

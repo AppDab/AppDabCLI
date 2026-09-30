@@ -10,6 +10,6 @@ struct AccountsCommand: ParsableCommand {
             AccountsRemoveCommand.self,
             AccountsVerifyCommand.self,
         ],
-        defaultSubcommand: AccountsListCommand.self
+        defaultSubcommand: AccountsListCommand.self,
     )
 }

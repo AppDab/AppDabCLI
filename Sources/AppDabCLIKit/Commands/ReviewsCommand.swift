@@ -5,6 +5,6 @@ struct ReviewsCommand: ParsableCommand {
         commandName: "reviews",
         abstract: "Read customer reviews for an app.",
         subcommands: [ReviewsListCommand.self, ReviewsGetCommand.self],
-        defaultSubcommand: ReviewsListCommand.self
+        defaultSubcommand: ReviewsListCommand.self,
     )
 }

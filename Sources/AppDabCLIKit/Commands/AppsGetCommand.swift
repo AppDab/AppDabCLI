@@ -5,7 +5,7 @@ import ArgumentParser
 struct AppsGetCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "get",
-        abstract: AutomationActionCatalog.descriptor(for: .getApp)?.description ?? "Fetch an app."
+        abstract: AutomationActionCatalog.descriptor(for: .getApp)?.description ?? "Fetch an app.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -22,7 +22,7 @@ struct AppsGetCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID, appID: appID),
             format: output.format,
             verbose: output.verbose,
-            render: { app, style in AppTextRenderer().render(app, style: style) }
+            render: { app, style in AppTextRenderer().render(app, style: style) },
         )
     }
 }

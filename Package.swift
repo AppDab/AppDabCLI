@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .executable(name: "dab", targets: ["AppDabCLI"]),
-        .library(name: "AppDabCLIKit", targets: ["AppDabCLIKit"])
+        .library(name: "AppDabCLIKit", targets: ["AppDabCLIKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/AppDab/AppDabKit", branch: "main"),
@@ -34,6 +34,6 @@ let package = Package(
             "AppDabCLI",
             .product(name: "ConnectAccounts", package: "AppStoreConnectKit"),
             .product(name: "ConnectKeychain", package: "AppStoreConnectKit"),
-        ])
-    ]
+        ]),
+    ],
 )

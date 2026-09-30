@@ -5,7 +5,7 @@ struct AppVersionCreateCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "create",
         abstract: AutomationActionCatalog.descriptor(for: .createAppVersion)?.description
-            ?? "Create an App Store Connect version."
+            ?? "Create an App Store Connect version.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -36,7 +36,7 @@ struct AppVersionCreateCommand: ParsableCommand, InvokingCommand {
             verbose: output.verbose,
             executionContext: execution.context,
             operationDescription: "create version \(version) for \(platform.prettyName)",
-            render: { version, style in VersionTextRenderer().render(version, style: style) }
+            render: { version, style in VersionTextRenderer().render(version, style: style) },
         )
     }
 }

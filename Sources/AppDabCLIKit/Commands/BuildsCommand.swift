@@ -8,8 +8,8 @@ struct BuildsCommand: ParsableCommand {
             BuildsListCommand.self, BuildsGetCommand.self,
             BuildsAddTesterCommand.self, BuildsRemoveTesterCommand.self,
             BuildsAddBetaGroupCommand.self, BuildsRemoveBetaGroupCommand.self,
-            BuildsSubmitForBetaReviewCommand.self, BuildsExpireCommand.self
+            BuildsSubmitForBetaReviewCommand.self, BuildsExpireCommand.self,
         ],
-        defaultSubcommand: BuildsListCommand.self
+        defaultSubcommand: BuildsListCommand.self,
     )
 }

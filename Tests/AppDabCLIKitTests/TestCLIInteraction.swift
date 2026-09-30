@@ -9,7 +9,7 @@ final class TestCLIInteraction: @unchecked Sendable, CLIInteraction {
     init(
         isInteractive: Bool = true,
         executablePath: String = "/usr/local/bin/dab",
-        responses: [String?] = []
+        responses: [String?] = [],
     ) {
         self.isInteractive = isInteractive
         self.executablePath = executablePath

@@ -21,7 +21,7 @@ struct CLICommandFormatterTests {
         let command = CLICommandFormatter.render(arguments: [
             "appVersion", "create", "--version", "--verbose",
             "--confirm=abc", "--idempotency-key", "key", "--format", "json",
-            "--password", "sensitive", "--verbose"
+            "--password", "sensitive", "--verbose",
         ])
         #expect(!command.contains("sensitive"))
         #expect(!command.contains("--format"))

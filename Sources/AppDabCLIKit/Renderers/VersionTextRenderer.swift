@@ -3,7 +3,7 @@ import Foundation
 
 struct VersionTextRenderer {
     func render(_ version: AppVersion, title: String = "Created Version", style: TextStyle) -> String {
-        return [
+        [
             style.heading(title),
             TextDetails(rows: [
                 ("Version", version.version),
@@ -14,5 +14,4 @@ struct VersionTextRenderer {
             ]).render(style: style),
         ].joined(separator: "\n\n")
     }
-
 }

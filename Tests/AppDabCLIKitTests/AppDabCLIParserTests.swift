@@ -13,13 +13,13 @@ struct AppDabCLIParserTests {
             "--cursor",
             "cursor-1",
             "--limit",
-            "25"
+            "25",
         ])
 
         #expect(invocation.actionID == .listApps)
         #expect(invocation.format == .text)
         #expect(invocation.originalArguments == [
-            "apps", "list", "--account-id", "account-1", "--cursor", "cursor-1", "--limit", "25"
+            "apps", "list", "--account-id", "account-1", "--cursor", "cursor-1", "--limit", "25",
         ])
     }
 
@@ -27,13 +27,13 @@ struct AppDabCLIParserTests {
         let accounts = try CLIParser().parse(["accounts"])
         let apps = try CLIParser().parse(["apps", "--account-id", "account-1"])
         let versions = try CLIParser().parse([
-            "appVersion", "--account-id", "account-1", "--app-id", "app-1"
+            "appVersion", "--account-id", "account-1", "--app-id", "app-1",
         ])
         let builds = try CLIParser().parse([
-            "builds", "--account-id", "account-1", "--app-id", "app-1"
+            "builds", "--account-id", "account-1", "--app-id", "app-1",
         ])
         let reviews = try CLIParser().parse([
-            "reviews", "--account-id", "account-1", "--app-id", "app-1"
+            "reviews", "--account-id", "account-1", "--app-id", "app-1",
         ])
 
         #expect(accounts.actionID == .listAccounts)
@@ -59,7 +59,7 @@ struct AppDabCLIParserTests {
     @Test func APIKeyAdditionRequiresTheExpectedOptions() {
         do {
             _ = try CLIParser().parse([
-                "accounts", "add", "--name", "", "--key-id", "KEY123", "--private-key-file", "key.p8"
+                "accounts", "add", "--name", "", "--key-id", "KEY123", "--private-key-file", "key.p8",
             ])
             Issue.record("Expected API key addition validation to fail.")
         } catch let error as CLIUsageError {
@@ -72,7 +72,7 @@ struct AppDabCLIParserTests {
 
     @Test func parsesAPIKeyRemovalAsAGuardedWrite() throws {
         let invocation = try CLIParser().parse([
-            "accounts", "remove", "--account-id", "ABCDEFGHIJ"
+            "accounts", "remove", "--account-id", "ABCDEFGHIJ",
         ])
 
         #expect(invocation.actionID == .removeAccount)
@@ -81,7 +81,7 @@ struct AppDabCLIParserTests {
 
     @Test func parsesAPIKeyVerification() throws {
         let invocation = try CLIParser().parse([
-            "accounts", "verify", "--account-id", "ABCDEFGHIJ"
+            "accounts", "verify", "--account-id", "ABCDEFGHIJ",
         ])
 
         #expect(invocation.actionID == .verifyAccount)
@@ -94,7 +94,7 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["apps", "get", "--account-id", "account-1", "--app-id", "app-1"]),
             CLIParser().parse(["builds", "list", "--account-id", "account-1", "--app-id", "app-1"]),
             CLIParser().parse(["builds", "get", "--account-id", "account-1", "--build-id", "build-1"]),
-            CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1"])
+            CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1"]),
         ]
 
         #expect(commands.allSatisfy { $0.format == .text })
@@ -111,7 +111,7 @@ struct AppDabCLIParserTests {
             "--limit",
             "25",
             "--format",
-            "json"
+            "json",
         ])
 
         #expect(invocation.actionID == .listCustomerReviews)
@@ -126,10 +126,10 @@ struct AppDabCLIParserTests {
             CLIParser().parse(["appVersion", "create", "--account-id", "account-1", "--app-id", "app-1", "--platform", "iOS", "--version", "2.0", "--verbose"]),
             CLIParser().parse(["builds", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
             CLIParser().parse(["builds", "get", "--account-id", "account-1", "--build-id", "build-1", "--verbose"]),
-            CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"])
+            CLIParser().parse(["reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--verbose"]),
         ]
 
-        #expect(invocations.map { $0.verbose } == [true, true, true, true, true, true, true])
+        #expect(invocations.map(\.verbose) == [true, true, true, true, true, true, true])
     }
 
     @Test func parsesCreateVersionAtTheRootResourcePath() throws {
@@ -152,17 +152,17 @@ struct AppDabCLIParserTests {
             "--platform", "iOS", "--platform", "macOS",
             "--state", "READY_FOR_DISTRIBUTION",
             "--version", "1.2.3", "--version-id", "version-1",
-            "--limit", "25", "--format", "json"
+            "--limit", "25", "--format", "json",
         ])
         let versionGet = try CLIParser().parse([
             "appVersion", "get",
-            "--account-id", "account-1", "--app-id", "app-1", "--version-id", "version-1"
+            "--account-id", "account-1", "--app-id", "app-1", "--version-id", "version-1",
         ])
         let reviewGet = try CLIParser().parse([
-            "reviews", "get", "--account-id", "account-1", "--review-id", "review-1"
+            "reviews", "get", "--account-id", "account-1", "--review-id", "review-1",
         ])
         let buildGet = try CLIParser().parse([
-            "builds", "get", "--account-id", "account-1", "--build-id", "build-1"
+            "builds", "get", "--account-id", "account-1", "--build-id", "build-1",
         ])
 
         #expect(versionList.actionID == .listAppVersions)
@@ -183,7 +183,7 @@ struct AppDabCLIParserTests {
             (["builds", "submitForBetaReview"] + build + ["--no-auto-notify"], .submitBuildForBetaReview),
             (["builds", "expire"] + build, .expireBuild),
             (["betaGroups", "addTester"] + group + ["--tester-id", "tester-1"], .addTesterToBetaGroup),
-            (["betaGroups", "removeTester"] + group + ["--tester-id", "tester-1"], .removeTesterFromBetaGroup)
+            (["betaGroups", "removeTester"] + group + ["--tester-id", "tester-1"], .removeTesterFromBetaGroup),
         ]
 
         for (arguments, actionID) in commands {
@@ -202,7 +202,7 @@ struct AppDabCLIParserTests {
             (["betaGroups", "create"] + app + ["--name", "Early Access", "--internal"], .createBetaGroup),
             (["betaGroups", "update"] + group + ["--feedback-enabled", "false"], .updateBetaGroup),
             (["betaGroups", "addBuild"] + group + ["--build-id", "build-1"], .addBuildToBetaGroup),
-            (["betaGroups", "removeBuild"] + group + ["--build-id", "build-1"], .removeBuildFromBetaGroup)
+            (["betaGroups", "removeBuild"] + group + ["--build-id", "build-1"], .removeBuildFromBetaGroup),
         ]
 
         for (arguments, actionID) in commands {
@@ -220,7 +220,7 @@ struct AppDabCLIParserTests {
             ["betaGroups", "create"] + app + ["--name", "External", "--access-to-all-builds", "true"],
             ["betaGroups", "update"] + group,
             ["betaGroups", "update"] + group + ["--public-link-limit", "0"],
-            ["betaGroups", "addBuild"] + group
+            ["betaGroups", "addBuild"] + group,
         ] {
             #expect(throws: CLIUsageError.self) { try CLIParser().parse(arguments) }
         }
@@ -229,7 +229,7 @@ struct AppDabCLIParserTests {
     @Test func TestFlightCommandsRequireNamedTargetOptions() {
         for arguments in [
             ["builds", "addTester", "--account-id", "account-1", "--build-id", "build-1"],
-            ["betaGroups", "removeTester", "--account-id", "account-1", "--beta-group-id", "group-1"]
+            ["betaGroups", "removeTester", "--account-id", "account-1", "--beta-group-id", "group-1"],
         ] {
             #expect(throws: CLIUsageError.self) { try CLIParser().parse(arguments) }
         }
@@ -239,7 +239,7 @@ struct AppDabCLIParserTests {
         do {
             _ = try CLIParser().parse([
                 "appVersion", "list", "--account-id", "account-1", "--app-id", "app-1",
-                "--state", "not-a-state"
+                "--state", "not-a-state",
             ])
             Issue.record("Expected state validation to fail.")
         } catch let error as CLIUsageError {
@@ -272,7 +272,7 @@ struct AppDabCLIParserTests {
                 "--app-id",
                 "app-1",
                 "--limit",
-                "201"
+                "201",
             ])
             Issue.record("Expected validation to fail.")
         } catch let error as CLIUsageError {
@@ -286,7 +286,7 @@ struct AppDabCLIParserTests {
     @Test func rejectsAnEmptyPaginationCursor() {
         do {
             _ = try CLIParser().parse([
-                "apps", "list", "--account-id", "account-1", "--cursor", "", "--limit", "25"
+                "apps", "list", "--account-id", "account-1", "--cursor", "", "--limit", "25",
             ])
             Issue.record("Expected validation to fail.")
         } catch let error as CLIUsageError {
@@ -366,7 +366,7 @@ struct AppDabCLIParserTests {
             do {
                 _ = try CLIParser().parse(resourcePath + [
                     "create", "--account-id", "account-1", "--app-id", "app-1",
-                    "--platform", "iOS", "--version", "2.0"
+                    "--platform", "iOS", "--version", "2.0",
                 ])
                 Issue.record("Expected \(resourcePath) to be unavailable.")
             } catch is CLIUsageError {
@@ -418,7 +418,7 @@ struct AppDabCLIParserTests {
     @Test func readCommandsRejectWriteExecutionOptions() {
         do {
             _ = try CLIParser().parse([
-                "accounts", "list", "--confirm", "fingerprint"
+                "accounts", "list", "--confirm", "fingerprint",
             ])
             Issue.record("Expected parsing to fail.")
         } catch let error as CLIUsageError {

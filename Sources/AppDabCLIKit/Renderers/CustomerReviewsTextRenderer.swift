@@ -18,7 +18,7 @@ struct CustomerReviewsTextRenderer {
         var sections = [
             style.reviewTitle("\(stars) \(rating)/5  \(review.title)"),
             "\(review.reviewerNickname) · \(review.territory) · \(review.createdDate.formatted(.iso8601)) · \(review.reviewID)",
-            review.body
+            review.body,
         ]
         if let response = review.response {
             sections.append(style.subheading("Response (\(response.state))"))

@@ -4,7 +4,7 @@ import ArgumentParser
 struct AccountsAddCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "add",
-        abstract: "Add and validate an App Store Connect API key."
+        abstract: "Add and validate an App Store Connect API key.",
     )
 
     @Option(help: "The display name for this account.")
@@ -42,7 +42,7 @@ struct AccountsAddCommand: ParsableCommand, InvokingCommand {
             input: .init(name: name, keyID: keyID, issuerID: issuerID, privateKeyFile: privateKeyFilePath),
             format: output.format,
             verbose: output.verbose,
-            render: { addition, style in AccountAdditionTextRenderer().render(addition, style: style) }
+            render: { addition, style in AccountAdditionTextRenderer().render(addition, style: style) },
         )
     }
 }

@@ -39,10 +39,18 @@ struct CLIErrorPresentation: Sendable {
         if let operationDescription = invocation.operationDescription {
             return operationDescription
         }
-        if actionID == .listAccounts { return "list accounts" }
-        if actionID == .listApps { return "list apps" }
-        if actionID == .getApp { return "get the app" }
-        if actionID == .listCustomerReviews { return "list customer reviews" }
+        if actionID == .listAccounts {
+            return "list accounts"
+        }
+        if actionID == .listApps {
+            return "list apps"
+        }
+        if actionID == .getApp {
+            return "get the app"
+        }
+        if actionID == .listCustomerReviews {
+            return "list customer reviews"
+        }
         return "complete \(actionID.rawValue.replacingOccurrences(of: "_", with: " "))"
     }
 
@@ -87,7 +95,8 @@ struct CLIErrorPresentation: Sendable {
     private static func recoveryCommand(from arguments: [String]) -> String? {
         guard !arguments.isEmpty,
               containsOption("--confirm", in: arguments),
-              containsOption("--idempotency-key", in: arguments) else {
+              containsOption("--idempotency-key", in: arguments)
+        else {
             return nil
         }
         return CLICommandFormatter.render(arguments: arguments)
@@ -96,5 +105,4 @@ struct CLIErrorPresentation: Sendable {
     private static func containsOption(_ option: String, in arguments: [String]) -> Bool {
         arguments.contains(option) || arguments.contains(where: { $0.hasPrefix("\(option)=") })
     }
-
 }

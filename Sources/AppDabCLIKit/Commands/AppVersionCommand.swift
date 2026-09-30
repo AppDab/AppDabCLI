@@ -7,8 +7,8 @@ struct AppVersionCommand: ParsableCommand {
         subcommands: [
             AppVersionListCommand.self,
             AppVersionGetCommand.self,
-            AppVersionCreateCommand.self
+            AppVersionCreateCommand.self,
         ],
-        defaultSubcommand: AppVersionListCommand.self
+        defaultSubcommand: AppVersionListCommand.self,
     )
 }

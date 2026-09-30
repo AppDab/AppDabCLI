@@ -8,7 +8,7 @@ struct AccountsTextRenderer {
         } else {
             sections.append(TextTable(
                 headers: ["Name", "Account ID"],
-                rows: accounts.map { [$0.name, $0.accountID] }
+                rows: accounts.map { [$0.name, $0.accountID] },
             ).render(style: style))
         }
         return sections.joined(separator: "\n\n")

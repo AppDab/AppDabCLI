@@ -8,7 +8,7 @@ enum CLIAccountStoreError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .accountNotFound(let accountID):
+        case let .accountNotFound(accountID):
             "Could not find the account \(accountID)."
         }
     }

@@ -8,8 +8,8 @@ struct BetaGroupBuildTextRenderer {
                 ("Group", membership.betaGroup.name),
                 ("Group ID", membership.betaGroup.betaGroupID),
                 ("Build ID", membership.buildID),
-                ("Member", membership.isMember ? "Yes" : "No")
-            ]).render(style: style)
+                ("Member", membership.isMember ? "Yes" : "No"),
+            ]).render(style: style),
         ].joined(separator: "\n\n")
     }
 }
