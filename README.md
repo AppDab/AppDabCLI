@@ -70,9 +70,21 @@ dab betaGroups addBuild --account-id ACCOUNT_ID --beta-group-id GROUP_ID --build
 dab betaGroups removeBuild --account-id ACCOUNT_ID --beta-group-id GROUP_ID --build-id BUILD_ID
 dab betaGroups addTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
 dab betaGroups removeTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
+dab betaGroups delete --account-id ACCOUNT_ID --beta-group-id GROUP_ID
 ```
 
 Beta review submission enables automatic tester notification by default. Use `--no-auto-notify` to disable it.
+
+## Beta tester invitations
+
+Choose one scope when listing testers and one destination when inviting them:
+
+```sh
+dab betaTesters list --account-id ACCOUNT_ID --app-id APP_ID
+dab betaTesters list --account-id ACCOUNT_ID --beta-group-id GROUP_ID
+dab betaTesters invite --account-id ACCOUNT_ID --email tester@example.com --beta-group-id GROUP_ID
+dab betaTesters sendInvitation --account-id ACCOUNT_ID --app-id APP_ID --tester-id TESTER_ID
+```
 
 ## Build export compliance
 

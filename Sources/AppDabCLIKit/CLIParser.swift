@@ -88,6 +88,8 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BetaGroupsCreateCommand.self)
         case ["betaGroups", "update"]:
             RootCommand.helpMessage(for: BetaGroupsUpdateCommand.self)
+        case ["betaGroups", "delete"]:
+            RootCommand.helpMessage(for: BetaGroupsDeleteCommand.self)
         case ["betaGroups", "addBuild"]:
             RootCommand.helpMessage(for: BetaGroupsAddBuildCommand.self)
         case ["betaGroups", "removeBuild"]:
@@ -96,6 +98,14 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BetaGroupsAddTesterCommand.self)
         case ["betaGroups", "removeTester"]:
             RootCommand.helpMessage(for: BetaGroupsRemoveTesterCommand.self)
+        case ["betaTesters"]:
+            RootCommand.helpMessage(for: BetaTestersCommand.self)
+        case ["betaTesters", "list"]:
+            RootCommand.helpMessage(for: BetaTestersListCommand.self)
+        case ["betaTesters", "invite"]:
+            RootCommand.helpMessage(for: BetaTestersInviteCommand.self)
+        case ["betaTesters", "sendInvitation"]:
+            RootCommand.helpMessage(for: BetaTestersSendInvitationCommand.self)
         case ["reviews"]:
             RootCommand.helpMessage(for: ReviewsCommand.self)
         case ["reviews", "list"]:
