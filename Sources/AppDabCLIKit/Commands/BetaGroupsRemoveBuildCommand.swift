@@ -13,7 +13,7 @@ struct BetaGroupsRemoveBuildCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "remove build \(options.buildID) from beta group \(options.betaGroupID)",
-            render: { membership, style in BetaGroupBuildTextRenderer().render(membership, style: style) }
+            render: { membership, style in BetaGroupBuildTextRenderer().render(membership, style: style) },
         )
     }
 }

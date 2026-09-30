@@ -22,7 +22,7 @@ struct TextTable {
     private func renderRow(
         _ cells: [String],
         widths: [Int],
-        transform: (String) -> String
+        transform: (String) -> String,
     ) -> String {
         cells.indices.map { column in
             let cell = cells[column]
@@ -45,7 +45,9 @@ struct TextTable {
 
     private static func displayWidth(_ value: String) -> Int {
         value.unicodeScalars.reduce(0) { width, scalar in
-            if scalar.properties.generalCategory == .control { return width }
+            if scalar.properties.generalCategory == .control {
+                return width
+            }
             return width + (scalar.value >= 0x1100 ? 2 : 1)
         }
     }

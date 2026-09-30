@@ -10,7 +10,7 @@ struct AppDabCLIRunnerTests {
         for format in [["--format", "json"], ["--format=json"]] {
             for arguments in [
                 ["apps", "get"],
-                ["reviews", "list", "--account-id", "a", "--app-id", "b", "--limit", "201"]
+                ["reviews", "list", "--account-id", "a", "--app-id", "b", "--limit", "201"],
             ] {
                 let result = await makeRunner().run(arguments: arguments + format)
                 let json = try JSONSerialization.jsonObject(with: Data(result.standardError.utf8)) as? [String: [String: String]]
@@ -25,7 +25,7 @@ struct AppDabCLIRunnerTests {
         let provider = CreateVersionDataProvider()
         let runner = CLIRunner(
             executor: makeCreateVersionExecutor(provider: provider),
-            interaction: TestCLIInteraction(responses: ["y"])
+            interaction: TestCLIInteraction(responses: ["y"]),
         )
         let result = await runner.run(arguments: createVersionArguments())
         #expect(await provider.createAttempts == 1)
@@ -35,7 +35,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func reconciliationFailureNamesReconciliation() async {
         let result = await makeRunner().run(arguments: createVersionArguments() + [
-            "--confirm", "missing", "--idempotency-key", "missing", "--reconcile"
+            "--confirm", "missing", "--idempotency-key", "missing", "--reconcile",
         ])
         #expect(result.standardError.hasPrefix("Could not reconcile the previous write."))
     }
@@ -55,7 +55,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func APIKeyVerificationUsesTheSharedAutomationResponse() async {
         let result = await makeRunner().run(arguments: [
-            "accounts", "verify", "--account-id", "account-1"
+            "accounts", "verify", "--account-id", "account-1",
         ])
 
         #expect(result.exitCode == 0)
@@ -77,7 +77,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func rendersAppDetailsAndVersions() async {
         let result = await makeRunner().run(arguments: [
-            "apps", "get", "--account-id", "account-1", "--app-id", "app-1"
+            "apps", "get", "--account-id", "account-1", "--app-id", "app-1",
         ])
 
         #expect(result.exitCode == 0)
@@ -90,7 +90,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func rendersReviewBodyAndResponseAsReadableBlocks() async {
         let result = await makeRunner().run(arguments: [
-            "reviews", "list", "--account-id", "account-1", "--app-id", "app-1"
+            "reviews", "list", "--account-id", "account-1", "--app-id", "app-1",
         ])
 
         #expect(result.exitCode == 0)
@@ -106,7 +106,7 @@ struct AppDabCLIRunnerTests {
     @Test func readsAnAuthoritativeVersionInTextAndJSON() async throws {
         let arguments = [
             "appVersion", "get", "--account-id", "account-1",
-            "--app-id", "app-1", "--version-id", "version-1"
+            "--app-id", "app-1", "--version-id", "version-1",
         ]
         let text = await makeRunner().run(arguments: arguments)
         let json = await makeRunner().run(arguments: arguments + ["--format", "json"])
@@ -190,7 +190,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func rendersACopyableContinuationCommand() async {
         let result = await makeRunner().run(arguments: [
-            "reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--limit", "1"
+            "reviews", "list", "--account-id", "account-1", "--app-id", "app-1", "--limit", "1",
         ])
 
         #expect(result.standardOutput.contains("""
@@ -213,7 +213,7 @@ struct AppDabCLIRunnerTests {
 
     @Test func includesTheAppContinuationCursorInJsonOutput() async throws {
         let result = await makeRunner().run(arguments: [
-            "apps", "list", "--account-id", "account-1", "--limit", "1", "--format", "json"
+            "apps", "list", "--account-id", "account-1", "--limit", "1", "--format", "json",
         ])
         let json = try JSONSerialization.jsonObject(with: Data(result.standardOutput.utf8)) as? [String: Any]
         let data = json?["data"] as? [String: Any]
@@ -302,7 +302,7 @@ struct AppDabCLIRunnerTests {
         let noninteractive = TestCLIInteraction(isInteractive: false, responses: ["y"])
         let noninteractiveRunner = makeInteractiveRunner(
             provider: noninteractiveProvider,
-            interaction: noninteractive
+            interaction: noninteractive,
         )
         let jsonProvider = CreateVersionDataProvider()
         let jsonInteraction = TestCLIInteraction(responses: ["y"])
@@ -337,7 +337,7 @@ struct AppDabCLIRunnerTests {
         let runner = makeInteractiveRunner(
             provider: provider,
             interaction: interaction,
-            previewLifetime: 0
+            previewLifetime: 0,
         )
 
         let result = await runner.run(arguments: createVersionArguments())
@@ -384,9 +384,9 @@ struct AppDabCLIRunnerTests {
         let provider = CreateVersionDataProvider(failure: .afterCreating)
         let executor = makeCreateVersionExecutor(provider: provider)
         let arguments = createVersionArguments()
-        let input = CreateAppVersionInput(
+        let input = try CreateAppVersionInput(
             accountID: "account-1", appID: "app-1",
-            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+            platform: #require(PlatformArgument(argument: "iOS")).value, version: "2.0",
         )
         let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
         let runner = CLIRunner(executor: executor)
@@ -408,15 +408,15 @@ struct AppDabCLIRunnerTests {
     @Test func typedCommitProducesJSONReceiptAndReplaysWithoutAnotherMutation() async throws {
         let provider = CreateVersionDataProvider()
         let executor = makeCreateVersionExecutor(provider: provider)
-        let input = CreateAppVersionInput(
+        let input = try CreateAppVersionInput(
             accountID: "account-1", appID: "app-1",
-            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+            platform: #require(PlatformArgument(argument: "iOS")).value, version: "2.0",
         )
         let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
         let runner = CLIRunner(executor: executor)
         let arguments = createVersionArguments() + [
             "--format", "json", "--confirm", plan.confirmationFingerprint,
-            "--idempotency-key", "json-commit-key"
+            "--idempotency-key", "json-commit-key",
         ]
 
         let first = await runner.run(arguments: arguments)
@@ -434,16 +434,16 @@ struct AppDabCLIRunnerTests {
         let provider = CreateVersionDataProvider(failure: .beforeCreating)
         let executor = makeCreateVersionExecutor(provider: provider)
         let arguments = createVersionArguments()
-        let input = CreateAppVersionInput(
+        let input = try CreateAppVersionInput(
             accountID: "account-1", appID: "app-1",
-            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+            platform: #require(PlatformArgument(argument: "iOS")).value, version: "2.0",
         )
         let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
         await #expect(throws: AutomationExecutionError.indeterminate) {
             try await executor.commitResult(
                 CreateAppVersionAction.self, input: input,
                 confirmationFingerprint: plan.confirmationFingerprint,
-                idempotencyKey: "reconcile-key"
+                idempotencyKey: "reconcile-key",
             )
         }
         let interaction = TestCLIInteraction(responses: ["y"])
@@ -457,7 +457,7 @@ struct AppDabCLIRunnerTests {
 
         #expect(result == .init(
             exitCode: 0,
-            standardOutput: "Reconciliation confirmed that no mutation was applied."
+            standardOutput: "Reconciliation confirmed that no mutation was applied.",
         ))
         #expect(interaction.standardError.isEmpty)
         #expect(await provider.createAttempts == 0)
@@ -466,23 +466,23 @@ struct AppDabCLIRunnerTests {
     @Test func reconciliationRendersTheNativeVersionAfterAResponseIsLost() async throws {
         let provider = CreateVersionDataProvider(failure: .afterCreating)
         let executor = makeCreateVersionExecutor(provider: provider)
-        let input = CreateAppVersionInput(
+        let input = try CreateAppVersionInput(
             accountID: "account-1", appID: "app-1",
-            platform: try #require(PlatformArgument(argument: "iOS")).value, version: "2.0"
+            platform: #require(PlatformArgument(argument: "iOS")).value, version: "2.0",
         )
         let plan = try await executor.preview(CreateAppVersionAction.self, input: input)
         await #expect(throws: AutomationExecutionError.indeterminate) {
             try await executor.commitResult(
                 CreateAppVersionAction.self, input: input,
                 confirmationFingerprint: plan.confirmationFingerprint,
-                idempotencyKey: "lost-response-key"
+                idempotencyKey: "lost-response-key",
             )
         }
 
         let result = await CLIRunner(executor: executor).run(arguments: createVersionArguments() + [
             "--confirm", plan.confirmationFingerprint,
             "--idempotency-key", "lost-response-key",
-            "--reconcile"
+            "--reconcile",
         ])
 
         #expect(result.exitCode == 0)
@@ -560,7 +560,7 @@ struct AppDabCLIRunnerTests {
         let runner = makeRunner(dataProvider: MockAutomationDataProvider(appError: .accountNotFound("missing")))
 
         let result = await runner.run(arguments: [
-            "apps", "list", "--account-id", "missing", "--format", "json"
+            "apps", "list", "--account-id", "missing", "--format", "json",
         ])
 
         #expect(result.exitCode == 1)
@@ -572,7 +572,7 @@ struct AppDabCLIRunnerTests {
         let runner = makeRunner(dataProvider: MockAutomationDataProvider(appError: .network("Timed out")))
 
         let result = await runner.run(arguments: [
-            "apps", "list", "--account-id", "account-1", "--format", "json", "--verbose"
+            "apps", "list", "--account-id", "account-1", "--format", "json", "--verbose",
         ])
 
         #expect(result.exitCode == 1)
@@ -586,7 +586,7 @@ struct AppDabCLIRunnerTests {
         let runner = makeRunner(dataProvider: MockAutomationDataProvider(appError: .accountNotFound("missing")))
 
         let result = await runner.run(arguments: [
-            "apps", "list", "--account-id", "missing", "--format=json"
+            "apps", "list", "--account-id", "missing", "--format=json",
         ])
 
         #expect(result.exitCode == 1)
@@ -597,7 +597,7 @@ struct AppDabCLIRunnerTests {
         let runner = makeRunner(dataProvider: MockAutomationDataProvider(reviewRating: 6))
 
         let result = await runner.run(arguments: [
-            "reviews", "list", "--account-id", "account-1", "--app-id", "app-1"
+            "reviews", "list", "--account-id", "account-1", "--app-id", "app-1",
         ])
 
         #expect(result.standardOutput.contains("★★★★★ 5/5  Great"))
@@ -608,12 +608,12 @@ struct AppDabCLIRunnerTests {
         let richRunner = makeRunner(outputCapabilities: .init(
             standardOutputIsTerminal: true,
             standardErrorIsTerminal: true,
-            environment: ["TERM": "xterm-256color"]
+            environment: ["TERM": "xterm-256color"],
         ))
         let noColorRunner = makeRunner(outputCapabilities: .init(
             standardOutputIsTerminal: true,
             standardErrorIsTerminal: true,
-            environment: ["TERM": "xterm-256color", "NO_COLOR": ""]
+            environment: ["TERM": "xterm-256color", "NO_COLOR": ""],
         ))
 
         let richResult = await richRunner.run(arguments: ["accounts", "list"])
@@ -634,11 +634,11 @@ struct AppDabCLIRunnerTests {
 
     private func makeRunner(
         dataProvider: MockAutomationDataProvider = .init(),
-        outputCapabilities: CLIOutputCapabilities = .plain
+        outputCapabilities: CLIOutputCapabilities = .plain,
     ) -> CLIRunner {
         CLIRunner(
             executor: Executor(dataProvider: dataProvider),
-            outputCapabilities: outputCapabilities
+            outputCapabilities: outputCapabilities,
         )
     }
 
@@ -646,40 +646,40 @@ struct AppDabCLIRunnerTests {
         let auditStore = AutomationSQLiteAuditStore(
             databaseURL: FileManager.default.temporaryDirectory
                 .appendingPathComponent("AppDabCLIPreviewTests-\(UUID().uuidString)", isDirectory: true)
-                .appendingPathComponent("audit.sqlite")
+                .appendingPathComponent("audit.sqlite"),
         )
         return .init(
             executor: Executor(dataProvider: MockAutomationDataProvider(), auditStore: auditStore),
-            makeIdempotencyKey: { "preview-key" }
+            makeIdempotencyKey: { "preview-key" },
         )
     }
 
     private func makeInteractiveRunner(
         provider: CreateVersionDataProvider,
         interaction: TestCLIInteraction,
-        previewLifetime: TimeInterval = 600
+        previewLifetime: TimeInterval = 600,
     ) -> CLIRunner {
         let executor = makeCreateVersionExecutor(
             provider: provider,
-            previewLifetime: previewLifetime
+            previewLifetime: previewLifetime,
         )
         return .init(
             executor: executor,
             interaction: interaction,
-            makeIdempotencyKey: { "interactive-key" }
+            makeIdempotencyKey: { "interactive-key" },
         )
     }
 
     private func makeCreateVersionExecutor(
         provider: CreateVersionDataProvider,
-        previewLifetime: TimeInterval = 600
+        previewLifetime: TimeInterval = 600,
     ) -> Executor {
         .init(
             dataProvider: provider,
             auditStore: AutomationSQLiteAuditStore(databaseURL: temporaryDatabaseURL()),
             previewLifetime: previewLifetime,
-            now: { Date(timeIntervalSince1970: 1_000) },
-            makePlanID: { "interactive-plan" }
+            now: { Date(timeIntervalSince1970: 1000) },
+            makePlanID: { "interactive-plan" },
         )
     }
 

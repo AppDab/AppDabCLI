@@ -5,7 +5,7 @@ import ArgumentParser
 struct ReviewsListCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "list",
-        abstract: AutomationActionCatalog.descriptor(for: .listCustomerReviews)?.description ?? "List customer reviews."
+        abstract: AutomationActionCatalog.descriptor(for: .listCustomerReviews)?.description ?? "List customer reviews.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -35,13 +35,13 @@ struct ReviewsListCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        return .read(
+        .read(
             ListCustomerReviewsAction.self,
             input: .init(accountID: accountID, appID: appID, pagination: .init(cursor: cursor, limit: limit)),
             format: output.format,
             verbose: output.verbose,
             render: { reviews, style in CustomerReviewsTextRenderer().render(reviews, style: style) },
-            pagination: { $0.pagination }
+            pagination: { $0.pagination },
         )
     }
 }

@@ -6,7 +6,7 @@ import Foundation
 struct BetaGroupsUpdateCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "update",
-        abstract: AutomationActionCatalog.descriptor(for: .updateBetaGroup)?.description ?? "Update a beta group."
+        abstract: AutomationActionCatalog.descriptor(for: .updateBetaGroup)?.description ?? "Update a beta group.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -71,7 +71,7 @@ struct BetaGroupsUpdateCommand: ParsableCommand, InvokingCommand {
             format: output.format, verbose: output.verbose,
             executionContext: execution.context,
             operationDescription: "update beta group \(betaGroupID)",
-            render: { group, style in BetaGroupTextRenderer().render(group, style: style) }
+            render: { group, style in BetaGroupTextRenderer().render(group, style: style) },
         )
     }
 }

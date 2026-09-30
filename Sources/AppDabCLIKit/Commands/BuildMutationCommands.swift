@@ -27,7 +27,7 @@ struct BuildsAddTesterCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "add tester \(testerID) to build \(options.buildID)",
-            render: { build, style in BuildTextRenderer().render(build, style: style) }
+            render: { build, style in BuildTextRenderer().render(build, style: style) },
         )
     }
 }
@@ -47,7 +47,7 @@ struct BuildsRemoveTesterCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "remove tester \(testerID) from build \(options.buildID)",
-            render: { build, style in BuildTextRenderer().render(build, style: style) }
+            render: { build, style in BuildTextRenderer().render(build, style: style) },
         )
     }
 }
@@ -67,7 +67,7 @@ struct BuildsAddBetaGroupCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "add beta group \(betaGroupID) to build \(options.buildID)",
-            render: { build, style in BuildTextRenderer().render(build, style: style) }
+            render: { build, style in BuildTextRenderer().render(build, style: style) },
         )
     }
 }
@@ -87,7 +87,7 @@ struct BuildsRemoveBetaGroupCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "remove beta group \(betaGroupID) from build \(options.buildID)",
-            render: { build, style in BuildTextRenderer().render(build, style: style) }
+            render: { build, style in BuildTextRenderer().render(build, style: style) },
         )
     }
 }
@@ -107,7 +107,7 @@ struct BuildsSubmitForBetaReviewCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "submit build \(options.buildID) for beta review",
-            render: { build, style in BuildTextRenderer().render(build, style: style) }
+            render: { build, style in BuildTextRenderer().render(build, style: style) },
         )
     }
 }
@@ -124,7 +124,7 @@ struct BuildsExpireCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "expire build \(options.buildID)",
-            render: { build, style in BuildTextRenderer().render(build, style: style) }
+            render: { build, style in BuildTextRenderer().render(build, style: style) },
         )
     }
 }

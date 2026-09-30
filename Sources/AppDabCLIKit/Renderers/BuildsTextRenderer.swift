@@ -16,9 +16,9 @@ struct BuildsTextRenderer {
                         $0.processingState ?? "-",
                         $0.uploadedDate?.formatted(.iso8601) ?? "-",
                         $0.expired.map { $0 ? "Yes" : "No" } ?? "-",
-                        $0.buildID
+                        $0.buildID,
                     ]
-                }
+                },
             ).render(style: style))
         }
         return sections.joined(separator: "\n\n")

@@ -1,7 +1,7 @@
 import AppDabServices
 
 struct AccountVerificationTextRenderer {
-    func render(_ verification: AccountVerification, style: TextStyle) -> String {
+    func render(_ verification: AccountVerification, style _: TextStyle) -> String {
         var output = "API key \(verification.account.name) is valid.\n\nAccount ID: \(verification.account.accountID)"
         if let issue = verification.issue {
             output += "\n\nWarning: \(issue.message)"

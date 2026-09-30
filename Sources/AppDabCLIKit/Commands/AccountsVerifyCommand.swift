@@ -5,7 +5,7 @@ import ArgumentParser
 struct AccountsVerifyCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "verify",
-        abstract: "Verify a configured App Store Connect API key."
+        abstract: "Verify a configured App Store Connect API key.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier to verify.")
@@ -25,7 +25,7 @@ struct AccountsVerifyCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID.trimmingCharacters(in: .whitespacesAndNewlines)),
             format: output.format,
             verbose: output.verbose,
-            render: { verification, style in AccountVerificationTextRenderer().render(verification, style: style) }
+            render: { verification, style in AccountVerificationTextRenderer().render(verification, style: style) },
         )
     }
 }

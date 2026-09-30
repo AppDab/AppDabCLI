@@ -9,8 +9,8 @@ struct BetaGroupsCommand: ParsableCommand {
             BetaGroupsListCommand.self, BetaGroupsGetCommand.self,
             BetaGroupsCreateCommand.self, BetaGroupsUpdateCommand.self,
             BetaGroupsAddBuildCommand.self, BetaGroupsRemoveBuildCommand.self,
-            BetaGroupsAddTesterCommand.self, BetaGroupsRemoveTesterCommand.self
-        ]
+            BetaGroupsAddTesterCommand.self, BetaGroupsRemoveTesterCommand.self,
+        ],
     )
 }
 
@@ -40,7 +40,7 @@ struct BetaGroupsAddTesterCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "add tester \(options.testerID) to beta group \(options.betaGroupID)",
-            render: { membership, style in BetaGroupTesterTextRenderer().render(membership, style: style) }
+            render: { membership, style in BetaGroupTesterTextRenderer().render(membership, style: style) },
         )
     }
 }
@@ -57,7 +57,7 @@ struct BetaGroupsRemoveTesterCommand: ParsableCommand, InvokingCommand {
             format: options.output.format, verbose: options.output.verbose,
             executionContext: options.execution.context,
             operationDescription: "remove tester \(options.testerID) from beta group \(options.betaGroupID)",
-            render: { membership, style in BetaGroupTesterTextRenderer().render(membership, style: style) }
+            render: { membership, style in BetaGroupTesterTextRenderer().render(membership, style: style) },
         )
     }
 }

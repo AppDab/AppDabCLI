@@ -12,8 +12,8 @@ struct BuildTextRenderer {
                 ("Uploaded", build.uploadedDate?.formatted(.iso8601) ?? "-"),
                 ("Expiration", build.expirationDate?.formatted(.iso8601) ?? "-"),
                 ("Expired", build.expired.map { $0 ? "Yes" : "No" } ?? "-"),
-                ("Build ID", build.buildID)
-            ]).render(style: style)
+                ("Build ID", build.buildID),
+            ]).render(style: style),
         ].joined(separator: "\n\n")
     }
 }

@@ -5,7 +5,7 @@ struct ReviewsGetCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "get",
         abstract: AutomationActionCatalog.descriptor(for: .getCustomerReview)?.description
-            ?? "Fetch a customer review."
+            ?? "Fetch a customer review.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -22,7 +22,7 @@ struct ReviewsGetCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID, reviewID: reviewID),
             format: output.format,
             verbose: output.verbose,
-            render: { review, style in CustomerReviewsTextRenderer().render(review, style: style) }
+            render: { review, style in CustomerReviewsTextRenderer().render(review, style: style) },
         )
     }
 }

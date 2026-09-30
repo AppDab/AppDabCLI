@@ -6,8 +6,8 @@ struct AppsCommand: ParsableCommand {
         abstract: "List or inspect App Store Connect apps.",
         subcommands: [
             AppsListCommand.self,
-            AppsGetCommand.self
+            AppsGetCommand.self,
         ],
-        defaultSubcommand: AppsListCommand.self
+        defaultSubcommand: AppsListCommand.self,
     )
 }

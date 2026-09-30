@@ -5,7 +5,7 @@ import ArgumentParser
 struct BetaGroupsListCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "list",
-        abstract: AutomationActionCatalog.descriptor(for: .listBetaGroups)?.description ?? "List beta groups for an app."
+        abstract: AutomationActionCatalog.descriptor(for: .listBetaGroups)?.description ?? "List beta groups for an app.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -40,7 +40,7 @@ struct BetaGroupsListCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID, appID: appID, pagination: .init(cursor: cursor, limit: limit)),
             format: output.format, verbose: output.verbose,
             render: { list, style in BetaGroupsTextRenderer().render(list, style: style) },
-            pagination: { $0.pagination }
+            pagination: { $0.pagination },
         )
     }
 }

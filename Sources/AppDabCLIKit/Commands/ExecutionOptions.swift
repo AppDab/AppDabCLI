@@ -4,13 +4,13 @@ import ArgumentParser
 struct ExecutionOptions: ParsableArguments {
     @Option(
         name: .customLong("confirm"),
-        help: "Commit the exact preview identified by this confirmation fingerprint."
+        help: "Commit the exact preview identified by this confirmation fingerprint.",
     )
     var confirmationFingerprint: String?
 
     @Option(
         name: .customLong("idempotency-key"),
-        help: "Use a unique key that makes a committed write safe to retry."
+        help: "Use a unique key that makes a committed write safe to retry.",
     )
     var idempotencyKey: String?
 
@@ -45,7 +45,7 @@ struct ExecutionOptions: ParsableArguments {
         return .init(
             mode: mode,
             confirmationFingerprint: confirmationFingerprint,
-            idempotencyKey: idempotencyKey
+            idempotencyKey: idempotencyKey,
         )
     }
 }

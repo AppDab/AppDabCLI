@@ -30,7 +30,9 @@ enum CLICommandFormatter {
             }
             index += 1
         }
-        if reconcile { cleaned.append("--reconcile") }
+        if reconcile {
+            cleaned.append("--reconcile")
+        }
         var lines = [quote(executable)]
         var expectsValue = false
         for argument in cleaned {
@@ -51,7 +53,9 @@ enum CLICommandFormatter {
 
     static func quote(_ value: String) -> String {
         let safe = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._/:@")
-        if !value.isEmpty, value.unicodeScalars.allSatisfy({ safe.contains($0) }) { return value }
+        if !value.isEmpty, value.unicodeScalars.allSatisfy({ safe.contains($0) }) {
+            return value
+        }
         return "'\(value.replacingOccurrences(of: "'", with: "'\"'\"'"))'"
     }
 

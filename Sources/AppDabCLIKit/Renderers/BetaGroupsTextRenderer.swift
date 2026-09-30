@@ -11,7 +11,7 @@ struct BetaGroupsTextRenderer {
                 rows: list.betaGroups.map {
                     [$0.name, $0.isInternalGroup.map { $0 ? "Internal" : "External" } ?? "-",
                      $0.hasAccessToAllBuilds.map { $0 ? "Yes" : "No" } ?? "-", $0.betaGroupID]
-                }
+                },
             ).render(style: style))
         }
         return sections.joined(separator: "\n\n")

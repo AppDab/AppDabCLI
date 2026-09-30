@@ -5,7 +5,7 @@ struct AppVersionGetCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "get",
         abstract: AutomationActionCatalog.descriptor(for: .getAppVersion)?.description
-            ?? "Fetch an app version."
+            ?? "Fetch an app version.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -25,7 +25,7 @@ struct AppVersionGetCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID, appID: appID, versionID: versionID),
             format: output.format,
             verbose: output.verbose,
-            render: { version, style in VersionTextRenderer().render(version, title: "Version", style: style) }
+            render: { version, style in VersionTextRenderer().render(version, title: "Version", style: style) },
         )
     }
 }

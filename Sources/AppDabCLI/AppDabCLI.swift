@@ -9,14 +9,14 @@ struct AppDabCLI {
     static func main() async {
         let outputCapabilities = CLIOutputCapabilities(
             standardOutputIsTerminal: isatty(STDOUT_FILENO) == 1,
-            standardErrorIsTerminal: isatty(STDERR_FILENO) == 1
+            standardErrorIsTerminal: isatty(STDERR_FILENO) == 1,
         )
         let runner = CLIRunner(
             executor: StandaloneAutomationExecutor.make(),
             outputCapabilities: outputCapabilities,
             interaction: StandardCLIInteraction(
-                executablePath: CommandLine.arguments.first ?? "dab"
-            )
+                executablePath: CommandLine.arguments.first ?? "dab",
+            ),
         )
         let result = await runner.run(arguments: Array(CommandLine.arguments.dropFirst()))
         if !result.standardOutput.isEmpty {

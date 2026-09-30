@@ -4,7 +4,7 @@ import ArgumentParser
 struct BetaGroupsGetCommand: ParsableCommand, InvokingCommand {
     static let configuration = CommandConfiguration(
         commandName: "get",
-        abstract: AutomationActionCatalog.descriptor(for: .getBetaGroup)?.description ?? "Get a beta group."
+        abstract: AutomationActionCatalog.descriptor(for: .getBetaGroup)?.description ?? "Get a beta group.",
     )
 
     @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
@@ -20,7 +20,7 @@ struct BetaGroupsGetCommand: ParsableCommand, InvokingCommand {
             GetBetaGroupAction.self,
             input: .init(accountID: accountID, betaGroupID: betaGroupID),
             format: output.format, verbose: output.verbose,
-            render: { group, style in BetaGroupTextRenderer().render(group, style: style) }
+            render: { group, style in BetaGroupTextRenderer().render(group, style: style) },
         )
     }
 }

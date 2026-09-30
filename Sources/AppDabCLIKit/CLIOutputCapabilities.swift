@@ -8,7 +8,7 @@ public struct CLIOutputCapabilities: Equatable, Sendable {
     public init(
         standardOutputIsTerminal: Bool,
         standardErrorIsTerminal: Bool,
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ProcessInfo.processInfo.environment,
     ) {
         let colorAllowed = environment["NO_COLOR"] == nil && environment["TERM"]?.lowercased() != "dumb"
         standardOutputSupportsColor = standardOutputIsTerminal && colorAllowed
@@ -21,6 +21,6 @@ public struct CLIOutputCapabilities: Equatable, Sendable {
     public static let plain = CLIOutputCapabilities(
         standardOutputIsTerminal: false,
         standardErrorIsTerminal: false,
-        environment: [:]
+        environment: [:],
     )
 }
