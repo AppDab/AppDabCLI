@@ -1,5 +1,5 @@
 {
-  "originHash" : "c0bf866ae68b63ce4318ae6c8d99008eeba6aa82f5025dcc7c4b230f56bb8f3b",
+  "originHash" : "c0a51e7a0a7246fca431291509286d90ed33981b7b78095a0e3d6090c5d5ad4f",
   "pins" : [
     {
       "identity" : "appdabkit",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/AppDab/AppDabKit",
       "state" : {
         "branch" : "main",
-        "revision" : "1467da821ec536f69301d804c27a2c36ed7e8614"
+        "revision" : "deb26b632dec288ea527133fcdbfc5c6111f2129"
       }
     },
     {
