@@ -1,4 +1,5 @@
 import AppDabAutomation
+import AppDabLocales
 import AppDabServices
 import ArgumentParser
 
@@ -51,13 +52,7 @@ struct BetaAppTestingListLocalizationsCommand: ParsableCommand, InvokingCommand 
         .read(ListBetaAppLocalizationsAction.self,
               input: .init(accountID: target.accountID, appID: target.appID),
               format: target.output.format, verbose: target.output.verbose,
-              render: { value, _ in
-                  guard case let .array(items)? = value.objectValue?["localizations"] else { return "No beta app localizations found." }
-                  return items.map { item in
-                      let fields = item.objectValue ?? [:]
-                      return "\(fields["locale"]?.stringValue ?? "Unknown")  \(fields["localizationID"]?.stringValue ?? "")"
-                  }.joined(separator: "\n")
-              })
+              render: { value, _ in BetaAppLocalizationsTextRenderer().render(value) })
     }
 }
 
@@ -67,11 +62,12 @@ struct BetaAppTestingCreateLocalizationCommand: ParsableCommand, InvokingCommand
     @Option(help: "Locale identifier, such as en-US.") var locale: String
     @OptionGroup var execution: ExecutionOptions
     var invocation: CLIInvocation {
-        .write(CreateBetaAppLocalizationAction.self,
-               input: .init(accountID: target.accountID, appID: target.appID, locale: locale),
-               format: target.output.format, verbose: target.output.verbose, executionContext: execution.context,
-               operationDescription: "create beta app localization \(locale)",
-               render: { _, _ in "Created beta app localization \(locale)." })
+        let displayLocale = AppStoreConnectLocaleTextFormatter.format(locale)
+        return .write(CreateBetaAppLocalizationAction.self,
+                      input: .init(accountID: target.accountID, appID: target.appID, locale: locale),
+                      format: target.output.format, verbose: target.output.verbose, executionContext: execution.context,
+                      operationDescription: "create beta app localization \(displayLocale)",
+                      render: { _, _ in BetaAppLocalizationsTextRenderer().created(locale: locale) })
     }
 }
 
@@ -87,7 +83,7 @@ struct BetaAppTestingUpdateLocalizationCommand: ParsableCommand, InvokingCommand
                             localizationChanges: fields.changes),
                format: target.output.format, verbose: target.output.verbose, executionContext: execution.context,
                operationDescription: "update beta app localization \(localizationID)",
-               render: { _, _ in "Updated beta app localization \(localizationID)." })
+               render: { localization, _ in BetaAppLocalizationsTextRenderer().updated(localization, fallbackID: localizationID) })
     }
 }
 
@@ -101,7 +97,7 @@ struct BetaAppTestingDeleteLocalizationCommand: ParsableCommand, InvokingCommand
                input: .init(accountID: target.accountID, appID: target.appID, localizationID: localizationID),
                format: target.output.format, verbose: target.output.verbose, executionContext: execution.context,
                operationDescription: "delete beta app localization \(localizationID)",
-               render: { _, _ in "Deleted beta app localization \(localizationID)." })
+               render: { localization, _ in BetaAppLocalizationsTextRenderer().deleted(localization, fallbackID: localizationID) })
     }
 }
 
