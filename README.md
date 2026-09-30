@@ -74,4 +74,12 @@ dab betaGroups removeTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --t
 
 Beta review submission enables automatic tester notification by default. Use `--no-auto-notify` to disable it.
 
+## Beta build localization
+
+Update a build localization's What to Test text with its localization identifier:
+
+```sh
+dab betaBuildLocalizations update --account-id ACCOUNT_ID --localization-id LOCALIZATION_ID --whats-new "Test the new flow"
+```
+
 The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.

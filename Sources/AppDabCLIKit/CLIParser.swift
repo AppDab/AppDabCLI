@@ -94,6 +94,10 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BetaGroupsAddTesterCommand.self)
         case ["betaGroups", "removeTester"]:
             RootCommand.helpMessage(for: BetaGroupsRemoveTesterCommand.self)
+        case ["betaBuildLocalizations"]:
+            RootCommand.helpMessage(for: BetaBuildLocalizationsCommand.self)
+        case ["betaBuildLocalizations", "update"]:
+            RootCommand.helpMessage(for: BetaBuildLocalizationsUpdateCommand.self)
         case ["reviews"]:
             RootCommand.helpMessage(for: ReviewsCommand.self)
         case ["reviews", "list"]:
