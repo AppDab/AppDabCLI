@@ -1,6 +1,6 @@
 import AppDabLocales
 
-enum PrimaryLocaleTextFormatter {
+enum AppStoreConnectLocaleTextFormatter {
     static func format(_ identifier: String) -> String {
         guard AppStoreConnectLocale.getStrict(fromId: identifier) != nil else { return identifier }
         let name = AppStoreConnectLocale.getDisplayName(forLocale: identifier)

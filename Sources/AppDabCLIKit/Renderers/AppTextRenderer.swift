@@ -1,4 +1,3 @@
-import AppDabLocales
 import AppDabServices
 import Foundation
 
@@ -10,7 +9,7 @@ struct AppTextRenderer {
                 ("App ID", app.appID),
                 ("Bundle ID", app.bundleID),
                 ("SKU", app.sku),
-                ("Primary Locale", PrimaryLocaleTextFormatter.format(app.primaryLocale)),
+                ("Primary Locale", AppStoreConnectLocaleTextFormatter.format(app.primaryLocale)),
                 ("Content Rights", app.contentRightsDeclaration ?? "Not available"),
                 ("Icon URL", app.iconURL?.absoluteString ?? "Not available"),
             ]).render(style: style),

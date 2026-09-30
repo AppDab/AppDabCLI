@@ -74,7 +74,7 @@ public final class CLIRunner: Sendable {
         guard let plan = preview.plan, let interaction else {
             throw AutomationExecutionError.persistence("An interactive confirmation is missing its mutation plan.")
         }
-        interaction.writeToStandardError("\(plan.redactedSummary)\n\n")
+        interaction.writeToStandardError("\(MutationPlanTextRenderer().summary(for: plan))\n\n")
         guard promptForConfirmation(interaction) else {
             return .init(exitCode: 0, standardOutput: "Cancelled. No changes made.")
         }

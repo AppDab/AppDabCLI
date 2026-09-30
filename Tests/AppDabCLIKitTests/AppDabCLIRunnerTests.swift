@@ -86,9 +86,9 @@ struct AppDabCLIRunnerTests {
         #expect(result.standardOutput.contains("1.2.3    IOS       READY_FOR_SALE  1970-01-01T00:03:20Z  version-1"))
     }
 
-    @Test func primaryLocaleTextKeepsUnknownIdentifiersReadable() {
-        #expect(PrimaryLocaleTextFormatter.format("en-US") == "English (United States) (en-US)")
-        #expect(PrimaryLocaleTextFormatter.format("xx-ZZ") == "xx-ZZ")
+    @Test func appStoreConnectLocaleTextKeepsUnsupportedIdentifiersReadable() {
+        #expect(AppStoreConnectLocaleTextFormatter.format("en-US") == "English (United States) (en-US)")
+        #expect(AppStoreConnectLocaleTextFormatter.format("xx-ZZ") == "xx-ZZ")
     }
 
     @Test func rendersReviewBodyAndResponseAsReadableBlocks() async {

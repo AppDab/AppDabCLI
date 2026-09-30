@@ -33,9 +33,7 @@ struct BetaBuildLocalizationsUpdateCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID, localizationID: localizationID, whatsNew: whatsNew),
             format: output.format, verbose: output.verbose, executionContext: execution.context,
             operationDescription: "update beta build localization \(localizationID)",
-            render: { localization, _ in
-                "Updated What to Test for \(localization.locale).\nID: \(localization.localizationID)\n\(localization.whatsNew)"
-            },
+            render: { localization, _ in BetaBuildLocalizationTextRenderer().render(localization) },
         )
     }
 }
