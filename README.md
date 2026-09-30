@@ -74,4 +74,15 @@ dab betaGroups removeTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --t
 
 Beta review submission enables automatic tester notification by default. Use `--no-auto-notify` to disable it.
 
+## Build export compliance
+
+Provide every compliance answer explicitly. When documents are required, include the purpose and a PDF or ZIP path:
+
+```sh
+dab builds setExportCompliance --account-id ACCOUNT_ID --app-id APP_ID --build-id BUILD_ID \
+  --needs-documents true --available-on-french-store true \
+  --contains-proprietary-cryptography false --contains-third-party-cryptography true \
+  --purpose "Encryption for account security" --document-path ./compliance.pdf
+```
+
 The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.

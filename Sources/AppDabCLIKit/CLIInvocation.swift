@@ -61,6 +61,29 @@ struct CLITypedResult: Sendable {
 }
 
 extension CLIInvocation {
+    static func guardedRequest(
+        actionID: AutomationActionID,
+        arguments: [String: JSONValue],
+        format: CLIOutputFormat,
+        verbose: Bool,
+        executionContext: AutomationExecutionContext,
+        operationDescription: String,
+    ) -> Self {
+        .init(
+            actionID: actionID,
+            format: format,
+            verbose: verbose,
+            executionContext: executionContext,
+            typedExecution: { executor, context in
+                let response = try await executor.execute(.init(
+                    actionID: actionID, arguments: arguments, executionContext: context,
+                ))
+                return .init(response: response, render: nil, pagination: nil)
+            },
+            operationDescription: operationDescription,
+        )
+    }
+
     static func read<Action: AutomationAction>(
         _ actionType: Action.Type,
         input: Action.Input,
