@@ -7,7 +7,7 @@ struct BetaGroupsCommand: ParsableCommand {
         abstract: "Work with an app's beta groups, builds, and testers.",
         subcommands: [
             BetaGroupsListCommand.self, BetaGroupsGetCommand.self,
-            BetaGroupsCreateCommand.self, BetaGroupsUpdateCommand.self,
+            BetaGroupsCreateCommand.self, BetaGroupsUpdateCommand.self, BetaGroupsDeleteCommand.self,
             BetaGroupsAddBuildCommand.self, BetaGroupsRemoveBuildCommand.self,
             BetaGroupsAddTesterCommand.self, BetaGroupsRemoveTesterCommand.self,
         ],
