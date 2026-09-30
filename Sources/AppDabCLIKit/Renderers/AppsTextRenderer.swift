@@ -1,3 +1,4 @@
+import AppDabLocales
 import AppDabServices
 
 struct AppsTextRenderer {
@@ -12,7 +13,7 @@ struct AppsTextRenderer {
         } else {
             sections.append(TextTable(
                 headers: ["Name", "Bundle ID", "SKU", "Locale", "App ID"],
-                rows: apps.map { [$0.name, $0.bundleID, $0.sku, $0.primaryLocale, $0.appID] },
+                rows: apps.map { [$0.name, $0.bundleID, $0.sku, PrimaryLocaleTextFormatter.format($0.primaryLocale), $0.appID] },
             ).render(style: style))
         }
         return sections.joined(separator: "\n\n")

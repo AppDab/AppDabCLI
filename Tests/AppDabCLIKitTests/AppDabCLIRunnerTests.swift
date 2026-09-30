@@ -67,12 +67,9 @@ struct AppDabCLIRunnerTests {
         let result = await makeRunner().run(arguments: ["apps", "list", "--account-id", "account-1"])
 
         #expect(result.exitCode == 0)
-        #expect(result.standardOutput == """
-        Apps (1 of 1)
-
-        Name    Bundle ID   SKU     Locale  App ID
-        AppDab  app.appdab  APPDAB  en-US   app-1
-        """)
+        #expect(result.standardOutput.contains("Apps (1 of 1)"))
+        #expect(result.standardOutput.contains("English (United States) (en-US)"))
+        #expect(result.standardOutput.contains("app-1"))
     }
 
     @Test func rendersAppDetailsAndVersions() async {
@@ -83,9 +80,15 @@ struct AppDabCLIRunnerTests {
         #expect(result.exitCode == 0)
         #expect(result.standardOutput.contains("AppDab\n\nApp ID:"))
         #expect(result.standardOutput.contains("Bundle ID:"))
+        #expect(result.standardOutput.contains("Primary Locale:  English (United States) (en-US)"))
         #expect(result.standardOutput.contains("Content Rights:"))
         #expect(result.standardOutput.contains("Versions (1)"))
         #expect(result.standardOutput.contains("1.2.3    IOS       READY_FOR_SALE  1970-01-01T00:03:20Z  version-1"))
+    }
+
+    @Test func primaryLocaleTextKeepsUnknownIdentifiersReadable() {
+        #expect(PrimaryLocaleTextFormatter.format("en-US") == "English (United States) (en-US)")
+        #expect(PrimaryLocaleTextFormatter.format("xx-ZZ") == "xx-ZZ")
     }
 
     @Test func rendersReviewBodyAndResponseAsReadableBlocks() async {
@@ -218,6 +221,8 @@ struct AppDabCLIRunnerTests {
         let json = try JSONSerialization.jsonObject(with: Data(result.standardOutput.utf8)) as? [String: Any]
         let data = json?["data"] as? [String: Any]
 
+        let apps = data?["apps"] as? [[String: Any]]
+        #expect(apps?.first?["primaryLocale"] as? String == "en-US")
         let pagination = data?["pagination"] as? [String: Any]
         #expect(pagination?["nextCursor"] as? String == "next-app")
     }

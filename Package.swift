@@ -24,6 +24,7 @@ let package = Package(
         ]),
         .target(name: "AppDabCLIKit", dependencies: [
             .product(name: "AppDabAutomation", package: "AppDabKit"),
+            .product(name: "AppDabLocales", package: "AppDabKit"),
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
         ]),
         .testTarget(name: "AppDabCLIKitTests", dependencies: [
