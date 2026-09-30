@@ -70,10 +70,32 @@ dab betaGroups addBuild --account-id ACCOUNT_ID --beta-group-id GROUP_ID --build
 dab betaGroups removeBuild --account-id ACCOUNT_ID --beta-group-id GROUP_ID --build-id BUILD_ID
 dab betaGroups addTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
 dab betaGroups removeTester --account-id ACCOUNT_ID --beta-group-id GROUP_ID --tester-id TESTER_ID
+dab betaGroups delete --account-id ACCOUNT_ID --beta-group-id GROUP_ID
 ```
 
 Beta review submission enables automatic tester notification by default. Use `--no-auto-notify` to disable it.
 
+## Beta tester invitations
+
+Choose one scope when listing testers and one destination when inviting them:
+
+```sh
+dab betaTesters list --account-id ACCOUNT_ID --app-id APP_ID
+dab betaTesters list --account-id ACCOUNT_ID --beta-group-id GROUP_ID
+dab betaTesters invite --account-id ACCOUNT_ID --email tester@example.com --beta-group-id GROUP_ID
+dab betaTesters sendInvitation --account-id ACCOUNT_ID --app-id APP_ID --tester-id TESTER_ID
+```
+
+## Build export compliance
+
+Provide every compliance answer explicitly. When documents are required, include the purpose and a PDF or ZIP path:
+
+```sh
+dab builds setExportCompliance --account-id ACCOUNT_ID --app-id APP_ID --build-id BUILD_ID \
+  --needs-documents true --available-on-french-store true \
+  --contains-proprietary-cryptography false --contains-third-party-cryptography true \
+  --purpose "Encryption for account security" --document-path ./compliance.pdf
+```
 ## Beta app testing settings
 
 Use `betaAppTesting` for app level TestFlight localizations, review details, and the license agreement:
