@@ -95,6 +95,12 @@ dab builds setExportCompliance --account-id ACCOUNT_ID --app-id APP_ID --build-i
   --needs-documents true --available-on-french-store true \
   --contains-proprietary-cryptography false --contains-third-party-cryptography true \
   --purpose "Encryption for account security" --document-path ./compliance.pdf
+## Beta build localization
+
+Update a build localization's What to Test text with its localization identifier:
+
+```sh
+dab betaBuildLocalizations update --account-id ACCOUNT_ID --localization-id LOCALIZATION_ID --whats-new "Test the new flow"
 ```
 ## Beta app testing settings
 
