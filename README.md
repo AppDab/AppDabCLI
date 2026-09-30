@@ -102,5 +102,24 @@ Update a build localization's What to Test text with its localization identifier
 ```sh
 dab betaBuildLocalizations update --account-id ACCOUNT_ID --localization-id LOCALIZATION_ID --whats-new "Test the new flow"
 ```
+## Beta app testing settings
+
+Use `betaAppTesting` for app level TestFlight localizations, review details, and the license agreement:
+
+```sh
+dab betaAppTesting listLocalizations --account-id ACCOUNT_ID --app-id APP_ID
+dab betaAppTesting createLocalization --account-id ACCOUNT_ID --app-id APP_ID --locale en-US
+dab betaAppTesting updateLocalization --account-id ACCOUNT_ID --app-id APP_ID --localization-id LOCALIZATION_ID \
+  --description "Try the new flow" --feedback-email beta@example.com \
+  --marketing-url https://example.com --privacy-policy-url https://example.com/privacy \
+  --tvos-privacy-policy "Privacy policy text"
+dab betaAppTesting deleteLocalization --account-id ACCOUNT_ID --app-id APP_ID --localization-id LOCALIZATION_ID
+dab betaAppTesting getReviewDetail --account-id ACCOUNT_ID --app-id APP_ID
+dab betaAppTesting updateReviewDetail --help
+dab betaAppTesting getLicenseAgreement --account-id ACCOUNT_ID --app-id APP_ID
+dab betaAppTesting updateLicenseAgreement --account-id ACCOUNT_ID --app-id APP_ID --agreement-text "Terms"
+```
+
+The localization and review detail updates require their complete field sets. Use `--help` on either update command to see every required option.
 
 The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.
