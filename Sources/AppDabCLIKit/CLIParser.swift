@@ -76,6 +76,8 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BuildsSubmitForBetaReviewCommand.self)
         case ["builds", "expire"]:
             RootCommand.helpMessage(for: BuildsExpireCommand.self)
+        case ["builds", "setExportCompliance"]:
+            RootCommand.helpMessage(for: BuildsSetExportComplianceCommand.self)
         case ["betaGroups"]:
             RootCommand.helpMessage(for: BetaGroupsCommand.self)
         case ["betaGroups", "list"]:

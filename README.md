@@ -86,4 +86,15 @@ dab betaTesters invite --account-id ACCOUNT_ID --email tester@example.com --beta
 dab betaTesters sendInvitation --account-id ACCOUNT_ID --app-id APP_ID --tester-id TESTER_ID
 ```
 
+## Build export compliance
+
+Provide every compliance answer explicitly. When documents are required, include the purpose and a PDF or ZIP path:
+
+```sh
+dab builds setExportCompliance --account-id ACCOUNT_ID --app-id APP_ID --build-id BUILD_ID \
+  --needs-documents true --available-on-french-store true \
+  --contains-proprietary-cryptography false --contains-third-party-cryptography true \
+  --purpose "Encryption for account security" --document-path ./compliance.pdf
+```
+
 The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.
