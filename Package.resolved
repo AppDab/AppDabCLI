@@ -1,5 +1,5 @@
 {
-  "originHash" : "c0a51e7a0a7246fca431291509286d90ed33981b7b78095a0e3d6090c5d5ad4f",
+  "originHash" : "80b122b9a55b982d55bfdeeca16c934a15d87f5815afeb91a6100960d4c11532",
   "pins" : [
     {
       "identity" : "appdabkit",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/AppDab/AppDabKit",
       "state" : {
         "branch" : "main",
-        "revision" : "deb26b632dec288ea527133fcdbfc5c6111f2129"
+        "revision" : "f42463b63f46c5eb4f0c8d946f1480fe6fa37f34"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MortenGregersen/AppStoreConnectKit",
       "state" : {
-        "revision" : "8a5b88d0113b641ce6adb6c87eb97c9f3c155f53",
-        "version" : "4.2.0"
+        "revision" : "5ce69f56097d0936591e11b203ae1acab9bf9368",
+        "version" : "4.2.2"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MortenGregersen/Bagbutik",
       "state" : {
-        "revision" : "156b1e2d309f71857e4693f058d6fd1b672b4c45",
-        "version" : "24.0.3"
+        "revision" : "74cf123c334dc8a63dd0979daea1559252cfa03b",
+        "version" : "24.3.1"
       }
     },
     {

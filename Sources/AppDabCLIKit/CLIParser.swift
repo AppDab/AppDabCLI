@@ -34,6 +34,20 @@ public struct CLIParser: Sendable {
 
     private func helpMessage(for commandPath: [String]) -> String {
         switch commandPath {
+        case ["screenshots"]: RootCommand.helpMessage(for: ScreenshotsCommand.self)
+        case ["appPreviews"]: RootCommand.helpMessage(for: AppPreviewsCommand.self)
+        case ["screenshots", "list"]: RootCommand.helpMessage(for: ScreenshotsListCommand.self)
+        case ["screenshots", "get"]: RootCommand.helpMessage(for: ScreenshotsGetCommand.self)
+        case ["screenshots", "upload"]: RootCommand.helpMessage(for: ScreenshotsUploadCommand.self)
+        case ["screenshots", "download"]: RootCommand.helpMessage(for: ScreenshotsDownloadCommand.self)
+        case ["screenshots", "remove"]: RootCommand.helpMessage(for: ScreenshotsRemoveCommand.self)
+        case ["screenshots", "reorder"]: RootCommand.helpMessage(for: ScreenshotsReorderCommand.self)
+        case ["appPreviews", "list"]: RootCommand.helpMessage(for: AppPreviewsListCommand.self)
+        case ["appPreviews", "get"]: RootCommand.helpMessage(for: AppPreviewsGetCommand.self)
+        case ["appPreviews", "upload"]: RootCommand.helpMessage(for: AppPreviewsUploadCommand.self)
+        case ["appPreviews", "download"]: RootCommand.helpMessage(for: AppPreviewsDownloadCommand.self)
+        case ["appPreviews", "remove"]: RootCommand.helpMessage(for: AppPreviewsRemoveCommand.self)
+        case ["appPreviews", "reorder"]: RootCommand.helpMessage(for: AppPreviewsReorderCommand.self)
         case ["accounts"]:
             RootCommand.helpMessage(for: AccountsCommand.self)
         case ["accounts", "list"]:
