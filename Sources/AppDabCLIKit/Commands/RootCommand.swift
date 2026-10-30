@@ -18,6 +18,8 @@ struct RootCommand: ParsableCommand {
           dab appVersion create --account-id <account-id> --app-id <app-id> --platform iOS --version 2.0
         """,
         subcommands: [
+            ScreenshotsCommand.self,
+            AppPreviewsCommand.self,
             AccountsCommand.self,
             AppsCommand.self,
             AppVersionCommand.self,
