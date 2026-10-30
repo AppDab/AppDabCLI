@@ -23,11 +23,25 @@ struct VersionMediaTextRenderer {
                 let maximum = list.requirements.first { $0.placementGroup == group }?.maximumCount
                 let count = maximum.map { "\(items.count)/\($0)" } ?? "\(items.count)"
                 var lines = [style.subheading("\(group) (\(count))")]
+                let assetStates = unique(items.map(\.assetState))
+                if let commonState = assetStates.first, assetStates.count == 1 {
+                    lines.append("Asset state: \(state(commonState))")
+                }
+                let orderWidth = String(items.count).count
+                let idWidth = max("Placement ID".count, items.map(\.id.count).max() ?? 0)
+                let stateWidth = max("State".count, items.map { state($0.placementState).count }.max() ?? 0)
+                let fileWidth = max(8, (style.maximumWidth ?? 100) - orderWidth - idWidth - stateWidth - 6)
+                let rows = items.enumerated().map { index, item in
+                    [String(index + 1), item.id, shortFileName(item.fileName, limit: fileWidth), state(item.placementState)]
+                }
+                lines.append(TextTable(headers: ["#", "Placement ID", "File", "State"], rows: rows).render(
+                    style: .init(supportsColor: style.supportsColor, maximumWidth: style.maximumWidth ?? 100),
+                ))
                 for (index, item) in items.enumerated() {
-                    lines.append("  \(index + 1). \(shortFileName(item.fileName, width: style.maximumWidth ?? 100))")
-                    lines.append("     \(style.detailLabel("Placement:")) \(item.id)")
-                    lines.append("     State: \(state(item.placementState)) | Asset: \(state(item.assetState))")
-                    lines += diagnostics(item).map { "     \($0)" }
+                    if assetStates.count > 1 {
+                        lines.append("\(index + 1). Asset state: \(state(item.assetState))")
+                    }
+                    lines += diagnostics(item).map { "\(index + 1). \($0)" }
                 }
                 sections.append(lines.joined(separator: "\n"))
             }
@@ -140,10 +154,10 @@ struct VersionMediaTextRenderer {
         }
     }
 
-    private func shortFileName(_ name: String, width: Int) -> String {
-        let limit = max(20, width - 8)
+    private func shortFileName(_ name: String, limit: Int) -> String {
         guard name.count > limit else { return name }
-        return String(name.prefix(limit - 15)) + "..." + String(name.suffix(12))
+        let suffixLength = min(12, (limit - 3) / 2)
+        return String(name.prefix(limit - suffixLength - 3)) + "..." + String(name.suffix(suffixLength))
     }
 
     private func unique(_ values: [String]) -> [String] {

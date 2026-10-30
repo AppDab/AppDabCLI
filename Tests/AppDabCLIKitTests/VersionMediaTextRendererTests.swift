@@ -16,6 +16,11 @@ struct VersionMediaTextRendererTests {
         let first = try #require(rendered.range(of: ids[0]))
         let second = try #require(rendered.range(of: ids[1]))
         #expect(first.lowerBound < second.lowerBound)
+        let tableLines = rendered.split(separator: "\n").filter { line in ids.contains { line.contains($0) } }
+        #expect(tableLines.count == 2)
+        #expect(tableLines.allSatisfy { $0.contains(".png") && $0.contains("Active") })
+        #expect(rendered.contains("Placement ID"))
+        #expect(rendered.contains("Asset state: Prepare For Submission"))
         #expect(!rendered.contains(fileName))
         #expect(!rendered.contains("asset-secret"))
         #expect(rendered.contains("Active"))
@@ -54,6 +59,21 @@ struct VersionMediaTextRendererTests {
         #expect(rendered.contains("INVALID_MEDIA: Apple explains the failure"))
         #expect(rendered.contains("Additional specifications available with --format json."))
         #expect(!rendered.contains("newField"))
+    }
+
+    @Test func profilesHaveSeparateTablesAndMixedAssetStatesRemainVisible() {
+        let placements = [
+            placement("p1", fileName: "first.png"),
+            VersionMediaPlacement(id: "p2", assetID: "a2", placementGroup: "IPHONE_FACE_ID_LARGE_PROFILE", fileName: "second.png", assetState: "FAILED", placementState: "FAILED"),
+            VersionMediaPlacement(id: "p3", assetID: "a3", placementGroup: "IPAD_13_PROFILE", fileName: "third.png", assetState: "COMPLETE", placementState: "ACTIVE"),
+        ]
+        let output = VersionMediaActionOutput(list: .init(appID: "app", localizationID: "locale", placements: placements, requirements: []))
+        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false))
+        #expect(rendered.components(separatedBy: "Placement ID").count == 3)
+        #expect(rendered.contains("1. Asset state: Prepare For Submission"))
+        #expect(rendered.contains("2. Asset state: Failed"))
+        #expect(rendered.contains("IPAD_13_PROFILE (1)"))
+        #expect(rendered.contains("Asset state: Complete"))
     }
 
     private func placement(_ id: String, fileName: String) -> VersionMediaPlacement {
