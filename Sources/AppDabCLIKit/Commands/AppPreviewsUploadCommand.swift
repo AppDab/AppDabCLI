@@ -8,7 +8,7 @@ struct AppPreviewsUploadCommand: ParsableCommand, InvokingCommand {
     @Option(name: .customLong("file"), help: "Local media file to upload.")
     var filePath: String
 
-    @Option(name: .customLong("placement-group"), help: "Apple placement group. Use list to see valid groups.")
+    @Option(name: .customLong("placement-group"), help: "Apple placement group. Use list --requirements to see valid groups.")
     var placementGroup: String
 
     @Option(name: .customLong("preview-frame-time-code"), help: "Preview frame in HH:MM:SS:FF format, for example 00:00:01:00.")

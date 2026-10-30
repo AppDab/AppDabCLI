@@ -3,7 +3,7 @@ import AppDabServices
 import Foundation
 
 struct VersionMediaTextRenderer {
-    func render(_ output: VersionMediaActionOutput, style: TextStyle) -> String {
+    func render(_ output: VersionMediaActionOutput, style: TextStyle, showRequirements: Bool = false) -> String {
         let placements = output.list?.placements ?? output.result?.placements ?? []
         var sections: [String] = []
         if let path = output.result?.destinationPath {
@@ -48,7 +48,11 @@ struct VersionMediaTextRenderer {
             if !placements.isEmpty {
                 sections.append("Use get --placement-id ID for full filenames and asset details.")
             }
-            sections.append(requirements(list.requirements, style: style))
+            if showRequirements {
+                sections.append(requirements(list.requirements, style: style))
+            } else {
+                sections.append("Use --requirements to show valid placement groups and media requirements.")
+            }
         } else if placements.isEmpty {
             if output.result?.destinationPath == nil {
                 sections.append("No media placements.")

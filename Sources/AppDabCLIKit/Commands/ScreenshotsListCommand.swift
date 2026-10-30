@@ -8,6 +8,9 @@ struct ScreenshotsListCommand: ParsableCommand, InvokingCommand {
     @Option(name: .customLong("placement-group"), help: "Apple placement group. Omit to list all groups.")
     var placementGroup: String?
 
+    @Flag(name: .customLong("requirements"), help: "Include valid placement groups and media requirements in text output.")
+    var showRequirements = false
+
     @OptionGroup var output: OutputOptions
 
     private var typedInput: ListScreenshotsInput {
@@ -23,7 +26,7 @@ struct ScreenshotsListCommand: ParsableCommand, InvokingCommand {
             ListScreenshotsAction.self,
             input: typedInput,
             format: output.format, verbose: output.verbose,
-            render: { media, style in VersionMediaTextRenderer().render(media, style: style) },
+            render: { [showRequirements] media, style in VersionMediaTextRenderer().render(media, style: style, showRequirements: showRequirements) },
         )
     }
 }

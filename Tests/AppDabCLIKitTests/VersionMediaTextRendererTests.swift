@@ -10,7 +10,7 @@ struct VersionMediaTextRendererTests {
         let ids = ["8ec00002-c124-8d2c-8f26-7cd37638f3e1", "11800002-c124-8d2c-8f1a-a0983e2fb926"]
         let placements = ids.map { placement($0, fileName: fileName) }
         let list = VersionMediaActionOutput(list: .init(appID: "app", localizationID: "locale", placements: placements, requirements: [requirement]))
-        let rendered = VersionMediaTextRenderer().render(list, style: .init(supportsColor: false, maximumWidth: 80))
+        let rendered = VersionMediaTextRenderer().render(list, style: .init(supportsColor: false, maximumWidth: 80), showRequirements: true)
         #expect(rendered.split(separator: "\n").allSatisfy { $0.count <= 80 })
         #expect(rendered.contains("IPHONE_FACE_ID_LARGE_PROFILE (2/10)"))
         let first = try #require(rendered.range(of: ids[0]))
@@ -41,7 +41,7 @@ struct VersionMediaTextRendererTests {
 
     @Test func previewRequirementsDescribeDurationFrameRateAndAudio() {
         let output = VersionMediaActionOutput(list: .init(appID: "app", localizationID: "locale", placements: [], requirements: [requirement]))
-        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false))
+        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false), showRequirements: true)
         #expect(rendered.contains("No media placements."))
         #expect(rendered.contains("15 s to 30 s"))
         #expect(rendered.contains("23 to 30 fps"))
@@ -55,7 +55,7 @@ struct VersionMediaTextRendererTests {
         let unknown = VersionMediaRequirement(placementGroup: "FUTURE_GROUP", specs: [.object(["newField": .string("new value")])])
         let item = VersionMediaPlacement(id: "p", assetID: "a", placementGroup: "FUTURE_GROUP", fileName: "future.mov", assetState: "FAILED", placementState: "FAILED", stateDetails: [.object(["code": .string("INVALID_MEDIA"), "description": .string("Apple explains the failure")])])
         let output = VersionMediaActionOutput(list: .init(appID: "app", localizationID: "locale", placements: [item], requirements: [unknown]))
-        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false))
+        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false), showRequirements: true)
         #expect(rendered.contains("INVALID_MEDIA: Apple explains the failure"))
         #expect(rendered.contains("Additional specifications available with --format json."))
         #expect(!rendered.contains("newField"))
@@ -68,7 +68,7 @@ struct VersionMediaTextRendererTests {
             VersionMediaPlacement(id: "p3", assetID: "a3", placementGroup: "IPAD_13_PROFILE", fileName: "third.png", assetState: "COMPLETE", placementState: "ACTIVE"),
         ]
         let output = VersionMediaActionOutput(list: .init(appID: "app", localizationID: "locale", placements: placements, requirements: []))
-        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false))
+        let rendered = VersionMediaTextRenderer().render(output, style: .init(supportsColor: false), showRequirements: true)
         #expect(rendered.components(separatedBy: "Placement ID").count == 3)
         #expect(rendered.contains("1. Asset state: Prepare For Submission"))
         #expect(rendered.contains("2. Asset state: Failed"))

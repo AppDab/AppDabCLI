@@ -126,7 +126,7 @@ The AppDab built in CLI uses AppDab’s shared Keychain account store instead. B
 
 ## Screenshots and app previews
 
-Both `screenshots` and `appPreviews` operate on an existing App Store version localization. Start with `list` to see placement IDs, processing states, valid placement groups, and Apple's media requirements.
+Both `screenshots` and `appPreviews` operate on an existing App Store version localization. Start with `list` to see placement IDs and processing states. Add `--requirements` to see valid placement groups and Apple's media requirements.
 
 ```sh
 dab screenshots list --account-id ACCOUNT --version-id VERSION --locale en-US
@@ -138,7 +138,7 @@ dab screenshots remove --account-id ACCOUNT --version-id VERSION --locale en-US 
 dab screenshots reorder --account-id ACCOUNT --version-id VERSION --locale en-US --placement-group GROUP --placement-ids SECOND FIRST THIRD --preview
 ```
 
-The same six commands are available for `appPreviews`. Text output shows a table under each device profile, with placement order, IDs, filenames, and states, and summarizes valid groups and media requirements. Long filenames are shortened in the list; use `get --placement-id PLACEMENT` for the full filename and asset details. Add `--format json` for complete structured output. `list` accepts an optional `--placement-group` filter. Ordering requires every placement in that group exactly once. Removal detaches a placement without deleting the underlying reusable asset. Downloads require a new destination file and fail if Apple has not yet supplied downloadable media. Apple may provide an HLS playlist for an app preview; use a `.m3u8` destination in that case. The playlist streams from Apple and requires Internet access for playback.
+The same six commands are available for `appPreviews`. Text output shows a table under each device profile, with placement order, IDs, filenames, and states, and includes media requirements only when requested with `--requirements`. Long filenames are shortened in the list; use `get --placement-id PLACEMENT` for the full filename and asset details. Add `--format json` for complete structured output. `list` accepts an optional `--placement-group` filter. Ordering requires every placement in that group exactly once. Removal detaches a placement without deleting the underlying reusable asset. Downloads require a new destination file and fail if Apple has not yet supplied downloadable media. Apple may provide an HLS playlist for an app preview; use a `.m3u8` destination in that case. The playlist streams from Apple and requires Internet access for playback.
 
 Writes show a preview. To commit, repeat the exact command without `--preview`, adding `--confirm FINGERPRINT --idempotency-key UNIQUE_KEY` from the preview. Interactive text sessions can confirm directly. Upload normally finishes after transfer completion and placement creation; `--wait` also waits for processing and, for app previews, download availability, up to `--timeout` seconds.
 

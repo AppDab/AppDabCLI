@@ -8,7 +8,7 @@ struct ScreenshotsUploadCommand: ParsableCommand, InvokingCommand {
     @Option(name: .customLong("file"), help: "Local media file to upload.")
     var filePath: String
 
-    @Option(name: .customLong("placement-group"), help: "Apple placement group. Use list to see valid groups.")
+    @Option(name: .customLong("placement-group"), help: "Apple placement group. Use list --requirements to see valid groups.")
     var placementGroup: String
 
     @Flag(name: .customLong("wait"), help: "Wait for Apple to process the uploaded media.")
