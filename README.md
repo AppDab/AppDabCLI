@@ -126,7 +126,7 @@ The AppDab built in CLI uses AppDab’s shared Keychain account store instead. B
 
 ## Screenshots and app previews
 
-Manage screenshots and Apple's [app previews](https://developer.apple.com/app-store/app-previews/) for an existing App Store version localization using `screenshots` and `appPreviews`. Start with `list` to see placement IDs, processing states, valid placement groups, and Apple's media requirements.
+Both `screenshots` and `appPreviews` operate on an existing App Store version localization. Start with `list` to see placement IDs, processing states, valid placement groups, and Apple's media requirements.
 
 ```sh
 dab screenshots list --account-id ACCOUNT --version-id VERSION --locale en-US
