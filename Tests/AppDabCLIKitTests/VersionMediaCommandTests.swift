@@ -60,7 +60,7 @@ struct VersionMediaCommandTests {
         let arguments = [group, "get"] + options + ["--placement-id", "p1"]
         let result = await runner.run(arguments: arguments)
         #expect(result.exitCode == 0)
-        for value in ["p1", "a1", "ACTIVE", "COMPLETE", "PROCESSING_DETAIL", "Apple diagnostic"] {
+        for value in ["p1", "a1", "Active", "Complete", "PROCESSING_DETAIL", "Apple diagnostic"] {
             #expect(result.standardOutput.contains(value))
         }
         let json = await runner.run(arguments: arguments + ["--format", "json"])
