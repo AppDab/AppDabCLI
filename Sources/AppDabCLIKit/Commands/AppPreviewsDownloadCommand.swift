@@ -12,7 +12,6 @@ struct AppPreviewsDownloadCommand: ParsableCommand, InvokingCommand {
     var destinationPath: String
 
     @OptionGroup var output: OutputOptions
-    @OptionGroup var execution: ExecutionOptions
 
     private var typedInput: DownloadAppPreviewInput {
         .init(accountID: scope.accountID, versionID: scope.versionID, locale: scope.locale, placementID: placementID, destinationPath: destinationPath)
@@ -23,11 +22,10 @@ struct AppPreviewsDownloadCommand: ParsableCommand, InvokingCommand {
     }
 
     var invocation: CLIInvocation {
-        .write(
+        .directWrite(
             DownloadAppPreviewAction.self,
             input: typedInput,
             format: output.format, verbose: output.verbose,
-            executionContext: execution.context, operationDescription: "download app previews",
             render: { media, style in VersionMediaTextRenderer().render(media, style: style) },
         )
     }

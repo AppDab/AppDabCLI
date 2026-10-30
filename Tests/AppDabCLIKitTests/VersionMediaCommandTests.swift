@@ -11,11 +11,11 @@ struct VersionMediaCommandTests {
     @Test func parsesEveryMediaCommandAndPreservesWriteOptions() throws {
         for (group, ids) in [("screenshots", [AutomationActionID.listScreenshots, .getScreenshot, .uploadScreenshot, .downloadScreenshot, .removeScreenshot, .reorderScreenshots]), ("appPreviews", [.listAppPreviews, .getAppPreview, .uploadAppPreview, .downloadAppPreview, .removeAppPreview, .reorderAppPreviews])] {
             let commands = ["list", "get", "upload", "download", "remove", "reorder"]
-            let extra = [[], ["--placement-id", "placement"], ["--file", "/tmp/file.png", "--placement-group", "group", "--wait", "--timeout", "30", "--preview"], ["--placement-id", "placement", "--destination", "/tmp/destination.png", "--preview"], ["--placement-id", "placement", "--preview"], ["--placement-group", "group", "--placement-ids", "p2", "p1", "--preview"]]
+            let extra = [[], ["--placement-id", "placement"], ["--file", "/tmp/file.png", "--placement-group", "group", "--wait", "--timeout", "30", "--preview"], ["--placement-id", "placement", "--destination", "/tmp/destination.png"], ["--placement-id", "placement", "--preview"], ["--placement-group", "group", "--placement-ids", "p2", "p1", "--preview"]]
             for index in commands.indices {
                 let invocation = try CLIParser().parse([group, commands[index]] + options + extra[index])
                 #expect(invocation.actionID == ids[index])
-                if index > 1 {
+                if index > 1, index != 3 {
                     #expect(invocation.executionContext.mode == .preview)
                 }
             }
@@ -78,6 +78,8 @@ struct VersionMediaCommandTests {
     func rejectsInvalidMediaOptions(group: String) throws {
         let invalid: [[String]] = [
             ["get"], ["download", "--placement-id", "p1"], ["remove"],
+            ["download", "--placement-id", "p1", "--destination", "x", "--preview"],
+            ["download", "--placement-id", "p1", "--destination", "x", "--confirm", "fingerprint", "--idempotency-key", "key"],
             ["upload", "--file", "file.png"],
             ["upload", "--file", "file.png", "--placement-group", "IPHONE", "--timeout", "0"],
             ["upload", "--file", "file.png", "--placement-group", "IPHONE", "--timeout", "3601"],
@@ -192,32 +194,34 @@ struct VersionMediaCommandTests {
     }
 
     @Test(arguments: ["screenshots", "appPreviews"])
-    func downloadWritesOnlyAfterConfirmationAndValidatesReplay(group: String) async throws {
+    func downloadRunsDirectlyWithoutPromptingAndNeverOverwrites(group: String) async throws {
         let directory = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let destination = directory.appendingPathComponent(group == "appPreviews" ? "preview.m3u8" : "screen.png")
         let fixture = CLIReadMediaFixture()
-        let runner = runner(fixture, directory: directory)
+        let interaction = TestCLIInteraction()
+        let runner = runner(fixture, directory: directory, interaction: interaction)
         let arguments = [group, "download"] + options + ["--placement-id", "p2", "--destination", destination.path]
-        let preview = await runner.run(arguments: arguments + ["--preview", "--format", "json"])
-        #expect(!FileManager.default.fileExists(atPath: destination.path))
-        #expect(await fixture.mutations == 0)
-        let commit = try arguments + ["--confirm", fingerprint(preview), "--idempotency-key", "download"]
-        let result = await runner.run(arguments: commit)
+        let result = await runner.run(arguments: arguments)
         #expect(result.exitCode == 0)
         #expect(result.standardOutput.contains(destination.path))
+        #expect(interaction.standardError.isEmpty)
         if group == "appPreviews" {
             #expect(result.standardOutput.contains("HLS playlist"))
             #expect(result.standardOutput.contains("Internet connection"))
         }
         #expect(try Data(contentsOf: destination) == Data("download".utf8))
-        let replay = await runner.run(arguments: commit + ["--format", "json"])
-        #expect(replay.exitCode == 0)
-        #expect(replay.standardOutput.contains("destinationPath"))
-        try FileManager.default.removeItem(at: destination)
-        let missing = await runner.run(arguments: commit)
-        #expect(missing.exitCode != 0)
+        let existing = await runner.run(arguments: arguments + ["--format", "json"])
+        #expect(existing.exitCode != 0)
+        #expect(existing.standardError.contains("already exists"))
+        #expect(try Data(contentsOf: destination) == Data("download".utf8))
         #expect(await fixture.downloadedIDs == ["p2"])
+        try FileManager.default.removeItem(at: destination)
+        let json = await runner.run(arguments: arguments + ["--format", "json"])
+        #expect(json.exitCode == 0)
+        #expect(json.standardOutput.contains("destinationPath"))
+        #expect(!json.standardOutput.contains("confirmationFingerprint"))
+        #expect(await fixture.downloadedIDs == ["p2", "p2"])
     }
 
     private func scope(_ group: String) -> VersionMediaScope {
