@@ -18,34 +18,46 @@ final class CLIAccountStore: AutomationAccountStoring, Sendable {
     static let serviceName = "AppDabCLI"
 
     private let keychain: any KeychainProtocol
+    @MainActor private var cachedController: APIKeyController?
 
     init(keychain: any KeychainProtocol = Keychain.macOSLogin()) {
         self.keychain = keychain
     }
 
+    @MainActor
     func loadAPIKeys() async throws -> [APIKey] {
-        let controller = await makeController()
-        try await controller.loadAPIKeys()
-        return await controller.apiKeys ?? []
+        let controller = makeController()
+        if controller.apiKeys == nil {
+            try controller.loadAPIKeys()
+        }
+        return controller.apiKeys ?? []
     }
 
+    @MainActor
     func saveAPIKey(_ apiKey: APIKey) async throws {
-        let controller = await makeController()
-        try await controller.addAPIKey(apiKey)
+        try makeController().addAPIKey(apiKey)
     }
 
+    @MainActor
     func removeAPIKey(accountID: String) async throws -> APIKey {
-        let controller = await makeController()
-        try await controller.loadAPIKeys()
-        guard let apiKey = await controller.apiKeys?.first(where: { $0.id == accountID }) else {
+        let controller = makeController()
+        if controller.apiKeys == nil {
+            try controller.loadAPIKeys()
+        }
+        guard let apiKey = controller.apiKeys?.first(where: { $0.id == accountID }) else {
             throw CLIAccountStoreError.accountNotFound(accountID)
         }
-        try await controller.deleteAPIKey(apiKey)
+        try controller.deleteAPIKey(apiKey)
         return apiKey
     }
 
     @MainActor
     private func makeController() -> APIKeyController {
-        APIKeyController(keychainServiceName: Self.serviceName, keychain: keychain)
+        if let cachedController {
+            return cachedController
+        }
+        let controller = APIKeyController(keychainServiceName: Self.serviceName, keychain: keychain)
+        cachedController = controller
+        return controller
     }
 }

@@ -27,6 +27,33 @@ struct CLIAccountStoreTests {
         }
     }
 
+    @Test func concurrentCredentialLookupsShareOneKeychainRead() async throws {
+        let keychain = InMemoryKeychain()
+        let seedStore = CLIAccountStore(keychain: keychain)
+        let apiKey = try makeAPIKey()
+        try await seedStore.saveAPIKey(apiKey)
+        let initialReadCount = keychain.listReadCount
+        let store = CLIAccountStore(keychain: keychain)
+        try await withThrowingTaskGroup(of: [APIKey].self) { group in
+            for _ in 0 ..< 20 {
+                group.addTask { try await store.loadAPIKeys() }
+            }
+            for try await keys in group {
+                #expect(keys == [apiKey])
+            }
+        }
+        #expect(keychain.listReadCount == initialReadCount + 1)
+        _ = try await store.removeAPIKey(accountID: apiKey.id)
+        #expect(try await store.loadAPIKeys().isEmpty)
+        try await store.saveAPIKey(apiKey)
+        #expect(try await store.loadAPIKeys() == [apiKey])
+        #expect(keychain.listReadCount == initialReadCount + 1)
+
+        let nextInvocation = CLIAccountStore(keychain: keychain)
+        #expect(try await nextInvocation.loadAPIKeys() == [apiKey])
+        #expect(keychain.listReadCount == initialReadCount + 2)
+    }
+
     private func makeAPIKey() throws -> APIKey {
         try APIKey(
             name: "Example Team",
@@ -45,6 +72,7 @@ struct CLIAccountStoreTests {
 
 private final class InMemoryKeychain: KeychainProtocol, @unchecked Sendable {
     private var passwords = [GenericPassword]()
+    private(set) var listReadCount = 0
 
     func addCertificate(certificate _: SecCertificate, named _: String) throws {
         fatalError("Certificates are not used by CLI account storage.")
@@ -71,7 +99,8 @@ private final class InMemoryKeychain: KeychainProtocol, @unchecked Sendable {
     }
 
     func listGenericPasswords(forService _: String) throws -> [GenericPassword] {
-        passwords
+        listReadCount += 1
+        return passwords
     }
 
     func addGenericPassword(forService _: String, password: GenericPassword) throws {
