@@ -1,12 +1,13 @@
 {
-  "originHash" : "09850bdd7e4909c86e02e8f741c18963d60df94d9e2a64d2553a34d6226b4f25",
+  "originHash" : "80b122b9a55b982d55bfdeeca16c934a15d87f5815afeb91a6100960d4c11532",
   "pins" : [
     {
       "identity" : "appdabkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AppDab/AppDabKit",
       "state" : {
-        "revision" : "94436ef32272c7a6220b9edf73663390f2e90c9b"
+        "branch" : "main",
+        "revision" : "2ffcd957b419a39b12d7cf15e2816a84a9b1b4c5"
       }
     },
     {
