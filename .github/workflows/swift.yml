@@ -4,6 +4,12 @@ on:
   pull_request:
 
 jobs:
+  distribution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
   format:
     runs-on: macos-latest
     steps:

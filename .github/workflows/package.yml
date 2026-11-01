@@ -1,0 +1,77 @@
+name: Signed CLI release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version with three numeric components, such as 1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: |
+          swift test --force-resolved-versions
+          python3 -m unittest discover -s scripts -p 'test_*.py'
+      - name: Prepare signing and notarization
+        env:
+          CERTIFICATE: ${{ secrets.APPDAB_DEVELOPER_ID_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPDAB_DEVELOPER_ID_P12_PASSWORD }}
+          PROFILE: ${{ secrets.APPDAB_CLI_DEVELOPER_ID_PROFILE_BASE64 }}
+          NOTARY_KEY: ${{ secrets.APPDAB_NOTARY_KEY_BASE64 }}
+          NOTARY_KEY_ID: ${{ secrets.APPDAB_NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.APPDAB_NOTARY_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          for variable in CERTIFICATE CERTIFICATE_PASSWORD PROFILE NOTARY_KEY NOTARY_KEY_ID NOTARY_ISSUER_ID; do
+            if [[ -z "${!variable}" ]]; then
+              echo "Missing signing configuration: $variable" >&2
+              exit 1
+            fi
+          done
+          umask 077
+          printf '%s' "$CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/developer-id.p12"
+          printf '%s' "$PROFILE" | base64 --decode > "$RUNNER_TEMP/cli.provisionprofile"
+          printf '%s' "$NOTARY_KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          signing_password="$(openssl rand -hex 32)"
+          echo "::add-mask::$signing_password"
+          security create-keychain -p "$signing_password" "$RUNNER_TEMP/signing.keychain-db"
+          security set-keychain-settings -lut 3600 "$RUNNER_TEMP/signing.keychain-db"
+          security unlock-keychain -p "$signing_password" "$RUNNER_TEMP/signing.keychain-db"
+          security import "$RUNNER_TEMP/developer-id.p12" -k "$RUNNER_TEMP/signing.keychain-db" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$signing_password" "$RUNNER_TEMP/signing.keychain-db"
+          security list-keychains -d user -s "$RUNNER_TEMP/signing.keychain-db" "$HOME/Library/Keychains/login.keychain-db"
+          xcrun notarytool store-credentials appdab-release --key "$RUNNER_TEMP/notary.p8" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER_ID" --keychain "$RUNNER_TEMP/signing.keychain-db"
+      - name: Package and notarize
+        env:
+          VERSION: ${{ inputs.version }}
+          SIGNING_IDENTITY: ${{ secrets.APPDAB_DEVELOPER_ID_IDENTITY }}
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_IDENTITY"
+          python3 scripts/package_cli.py --version "$VERSION" --identity "$SIGNING_IDENTITY" \
+            --profile "$RUNNER_TEMP/cli.provisionprofile" --output "$RUNNER_TEMP/release" \
+            --notary-profile appdab-release --notary-keychain "$RUNNER_TEMP/signing.keychain-db"
+          python3 scripts/generate_homebrew_cask.py --version "$VERSION" \
+            --archive "$RUNNER_TEMP/release/AppDabCLI-$VERSION.zip" \
+            --output "$RUNNER_TEMP/release/appdab-cli.rb"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AppDabCLI-release-candidate
+          path: |
+            ${{ runner.temp }}/release/*.zip
+            ${{ runner.temp }}/release/*.sha256
+            ${{ runner.temp }}/release/*.rb
+      - name: Remove signing material
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
+          rm -f "$RUNNER_TEMP/developer-id.p12" "$RUNNER_TEMP/cli.provisionprofile" "$RUNNER_TEMP/notary.p8"
