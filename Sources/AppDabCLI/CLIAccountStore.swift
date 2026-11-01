@@ -15,13 +15,13 @@ enum CLIAccountStoreError: LocalizedError, Equatable {
 }
 
 final class CLIAccountStore: AutomationAccountStoring, Sendable {
-    static let serviceName = "AppDabCLI"
-
     private let keychain: any KeychainProtocol
+    private let serviceName: String
     @MainActor private var cachedController: APIKeyController?
 
-    init(keychain: any KeychainProtocol = Keychain.macOSLogin()) {
-        self.keychain = keychain
+    init(keychain: (any KeychainProtocol)? = nil, configuration: CLIKeychainConfiguration = .current) {
+        self.keychain = keychain ?? configuration.makeKeychain()
+        serviceName = configuration.serviceName
     }
 
     @MainActor
@@ -56,7 +56,7 @@ final class CLIAccountStore: AutomationAccountStoring, Sendable {
         if let cachedController {
             return cachedController
         }
-        let controller = APIKeyController(keychainServiceName: Self.serviceName, keychain: keychain)
+        let controller = APIKeyController(keychainServiceName: serviceName, keychain: keychain)
         cachedController = controller
         return controller
     }
