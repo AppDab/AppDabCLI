@@ -14,7 +14,11 @@ swift run dab --help
 
 ## Accounts
 
-The standalone CLI stores App Store Connect API keys in the user's macOS login Keychain under its own `AppDabCLI` service. These credentials stay local to this Mac rather than syncing through iCloud Keychain. The CLI does not require AppDab, an app group entitlement, or an AppDab signing certificate, including when launched with `swift run`.
+The signed macOS package shares AppDab's API keys through the same Keychain access group and `AppDab` service. Account changes affect the CLI and AppDab. It runs without App Sandbox, so file commands use supplied paths without folder setup in AppDab.
+
+Source builds (`swift build` or `swift run`) continue using the local macOS login Keychain under their own `AppDabCLI` service. They require no AppDab signing certificate or provisioning profile. These accounts remain separate from AppDab's credentials.
+
+See [Signed CLI Distribution](Documentation/SignedDistribution.md) for packaging, Keychain verification, notarization, and Homebrew release preparation. Homebrew publication is not enabled by this change.
 
 Add an API key from its downloaded `.p8` file:
 
