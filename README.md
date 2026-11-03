@@ -6,11 +6,15 @@ Contributors adding a CLI command for an AppDabKit action should follow [Adding 
 
 ## Build and test
 
+Requires macOS 15 or later and a Swift 6.1 or later toolchain. Run these commands from the repository root:
+
 ```sh
 swift build
 swift test
 swift run dab --help
 ```
+
+The examples below use `dab` for an installed CLI. When running from source, use `swift run dab` instead.
 
 ## Accounts
 
@@ -18,7 +22,7 @@ The signed macOS package shares AppDab's API keys. Adding or removing an account
 
 Source builds (`swift build` or `swift run`) continue using the local macOS login Keychain under their own `AppDabCLI` service. They require no AppDab signing certificate or provisioning profile. These accounts remain separate from AppDab's credentials.
 
-See [Signed CLI Distribution](Documentation/SignedDistribution.md) for packaging, Keychain verification, notarization, and Homebrew release preparation.
+Release maintainers can follow [Signed CLI Distribution](Documentation/SignedDistribution.md) to build and verify signed packages and prepare Homebrew releases. Signing is not required to build, test, or use the CLI from source.
 
 Add an API key from its downloaded `.p8` file:
 

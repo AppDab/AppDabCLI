@@ -1,6 +1,8 @@
 # Signed CLI distribution
 
-The official macOS package runs without App Sandbox and shares AppDab's existing API keys. It is a small `AppDabCLI.app` bundle containing the `dab` executable, a provisioning profile, and the Keychain access entitlement. Homebrew exposes the executable as a normal `dab` command through a symlink. The bundle does not provide a graphical interface.
+This guide is for maintainers producing official AppDab CLI releases. Building, testing, and using the CLI from source does not require signing credentials or membership in AppDab's Apple Developer team; follow the [README](../README.md#build-and-test) for that workflow.
+
+The signed macOS package runs without App Sandbox and shares AppDab's existing API keys. It is an `AppDabCLI.app` bundle containing the `dab` executable, a provisioning profile, and the Keychain access entitlement. The generated Homebrew cask installs this bundle and exposes its executable as a normal `dab` command through a symlink. The bundle does not provide a graphical interface.
 
 ## Credential storage
 
@@ -17,7 +19,9 @@ The standalone package has no sandbox, bookmark, or application group entitlemen
 
 ## Signing prerequisites
 
-Use the existing AppDab developer team and an explicit macOS identifier `app.AppDab.AppDabCLI`. Create a Developer ID provisioning profile authorizing that identifier and the shared Keychain group. Select the Developer ID Application certificate used to sign the package. The profile's authorized Keychain groups may include the team's wildcard group.
+Official releases require access to AppDab's Apple Developer team (`R7YA4RGA8U`), a Developer ID Application signing identity with its private key installed in the signing Keychain, and a macOS Developer ID provisioning profile for `app.AppDab.AppDabCLI`. The profile must authorize both the signing certificate and the shared Keychain group `R7YA4RGA8U.app.AppDab.AppDab`; the team's wildcard group is also accepted.
+
+These identifiers are fixed in the packaging scripts, entitlements, and `CLIKeychainConfiguration`. An independently signed fork needs its own identifiers and provisioning configuration. A different developer team cannot grant access to AppDab's shared credentials.
 
 The profile is embedded at `Contents/embedded.provisionprofile`. The package script rejects expired profiles, another platform or developer team, an incompatible app identifier or Keychain group, and a signing certificate not authorized by the profile. Distribution requires a universal arm64 and x86_64 executable and a Developer ID Application identity. It never enables App Sandbox.
 
@@ -25,9 +29,11 @@ Certificates, private keys, downloaded profiles, and notarization credentials do
 
 ## Build a distribution package
 
-Run from a logged in macOS session with Xcode selected:
+Run from the repository root in a logged in macOS session with Xcode selected. The CLI requires macOS 15 or later and Swift 6.1 or later.
 
 The scripts use Bash entry points and a shared Swift implementation in `scripts/distribution.swift`. They require only Xcode's Swift toolchain and the macOS command line tools, with no additional scripting runtime or packages. Each entry point accepts `--help`.
+
+Replace the signing identity and provisioning profile path below with the installed identity and downloaded profile for the AppDab team. `appdab-release` names a stored `notarytool` credentials profile, not a provisioning profile. Configure it before packaging using `xcrun notarytool store-credentials appdab-release` and follow the prompts.
 
 ```sh
 scripts/package_cli.sh \
@@ -40,13 +46,19 @@ scripts/package_cli.sh \
 
 This builds both architectures with the resolved dependencies, constructs and signs the bundle with hardened runtime, verifies the signature and profile certificate, submits the archive for notarization, checks acceptance, staples the ticket, assesses the app with Gatekeeper, and recreates the final archive and checksum. Existing output versions are never overwritten.
 
+For version `1.0.0`, the output directory contains:
+
+- `AppDabCLI-1.0.0/AppDabCLI.app`: the signed bundle.
+- `AppDabCLI-1.0.0.zip`: the archive to publish.
+- `AppDabCLI-1.0.0.zip.sha256`: the archive checksum.
+
 Without `--notary-profile`, the script creates a signed package for local verification and explicitly reports that notarization is still required before distribution. `--notary-keychain` selects a nondefault Keychain containing the stored notarization credentials. Configure those credentials separately using `xcrun notarytool store-credentials`; no credential values are command inputs to this packaging script.
 
 For a quick local proof, `--binary /path/to/dab` packages an already built executable. Distribution still requires both architectures. `--development` permits a development profile and native architecture for a local test only; it is incompatible with notarization and must not be published.
 
 ## Verify shared Keychain access
 
-Configure an account in AppDab, then run:
+This is a local maintainer check that needs a signed package and an account already configured in AppDab on the same Mac. After packaging, run:
 
 ```sh
 scripts/verify_keychain_access.sh \
@@ -57,7 +69,7 @@ The verification checks the signature, shared storage selection, and absence of 
 
 Add `--previous-app /path/to/older/AppDabCLI.app` to verify that account access persists across an upgrade. `--allow-empty` is available for a Mac without configured accounts, but an empty result does not demonstrate access to an existing AppDab account.
 
-Run the automated tests with:
+Contributors can run the automated tests without signing credentials or configured AppDab accounts:
 
 ```sh
 swift test --force-resolved-versions
@@ -75,9 +87,17 @@ scripts/generate_homebrew_cask.sh \
   --output /tmp/appdab-cli-release/appdab-cli.rb
 ```
 
-The generator extracts the archive, verifies its expected version and bundle identity, validates the code signature and stapled ticket, and pins the archive checksum. It expects the archive to be published as `AppDabCLI-1.0.0.zip` in the repository's `v1.0.0` GitHub release. Publish the generated cask in the intended Homebrew tap after publishing that exact archive.
+The generator extracts the archive, verifies its expected version and bundle identity, validates the code signature and stapled ticket, and pins the archive checksum. A cask is Homebrew's installation definition for the signed bundle.
 
-The **Signed CLI release candidate** workflow is manually dispatched with a version. It tests, builds, signs, notarizes, and uploads the zip, checksum, and generated cask as workflow artifacts. It does not create a GitHub release or change a Homebrew tap. Configure these repository secrets before running it:
+To publish version `1.0.0`:
+
+1. Upload `AppDabCLI-1.0.0.zip` and its checksum to the `v1.0.0` GitHub release in `AppDab/AppDabCLI`.
+2. Add the generated `appdab-cli.rb` to the Homebrew tap used to distribute the CLI. Its download URL points to that GitHub release.
+3. Keep the published archive identical to the one used to generate the cask; replacing it changes the checksum and causes installation to fail.
+
+## GitHub Actions release workflow
+
+Repository maintainers can run **Signed CLI release candidate** from GitHub's Actions tab with a version such as `1.0.0`. It tests, builds, signs, notarizes, and uploads the zip, checksum, and generated cask as workflow artifacts. Download those artifacts and follow the publishing steps above. Configure these repository secrets before running it:
 
 | Secret | Value |
 | --- | --- |
