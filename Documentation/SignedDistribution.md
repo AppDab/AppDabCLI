@@ -11,7 +11,7 @@ The official macOS package runs without App Sandbox and shares AppDab's existing
 
 The signed bundle selects shared storage through its `AppDabSharedKeychain` Info.plist value. There is no command or environment override. A misconfigured shared package fails rather than falling back to separate credentials. Source builds continue working without an AppDab signing identity or provisioning profile.
 
-Account additions and removals in the signed package affect the same credentials AppDab uses. Existing standalone accounts are not automatically copied or deleted. AppDab may need to reload its account list to reflect external changes. CLI audit records remain under `~/Library/Application Support/AppDabCLI`; this change shares credentials, not the app's audit database or preferences.
+Account additions and removals in the signed package affect the same credentials AppDab uses. Existing standalone accounts are not automatically copied or deleted. AppDab may need to reload its account list to reflect external changes. CLI audit records remain under `~/Library/Application Support/AppDabCLI/dab-audit.sqlite`.
 
 The standalone package has no sandbox, bookmark, or application group entitlement. Uploads and downloads accept supplied paths, subject to normal macOS permissions and privacy protections. Existing file validation and overwrite protection still apply.
 
@@ -75,7 +75,7 @@ scripts/generate_homebrew_cask.sh \
   --output /tmp/appdab-cli-release/appdab-cli.rb
 ```
 
-The generator extracts the archive, verifies its expected version and bundle identity, validates the code signature and stapled ticket, and pins the archive checksum. It expects the archive to be published as `AppDabCLI-1.0.0.zip` in the repository's `v1.0.0` GitHub release. Publish the generated cask in the intended Homebrew tap after publishing that exact archive. A tap and public release are separate publishing steps; this branch does not create either automatically.
+The generator extracts the archive, verifies its expected version and bundle identity, validates the code signature and stapled ticket, and pins the archive checksum. It expects the archive to be published as `AppDabCLI-1.0.0.zip` in the repository's `v1.0.0` GitHub release. Publish the generated cask in the intended Homebrew tap after publishing that exact archive.
 
 The **Signed CLI release candidate** workflow is manually dispatched with a version. It tests, builds, signs, notarizes, and uploads the zip, checksum, and generated cask as workflow artifacts. It does not create a GitHub release or change a Homebrew tap. Configure these repository secrets before running it:
 
