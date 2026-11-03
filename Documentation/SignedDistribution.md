@@ -31,7 +31,9 @@ Certificates, private keys, downloaded profiles, and notarization credentials do
 
 Run from the repository root in a logged in macOS session with Xcode selected. The CLI requires macOS 15 or later and Swift 6.1 or later.
 
-The scripts use Bash entry points and a shared Swift implementation in `scripts/distribution.swift`. They require only Xcode's Swift toolchain and the macOS command line tools, with no additional scripting runtime or packages. Each entry point accepts `--help`.
+The scripts use Bash entry points and Swift source files in `scripts/Distribution`. `run_distribution.sh` compiles those files into a temporary executable, runs the requested command, and removes the executable when it finishes. They require only Xcode's Swift toolchain and the macOS command line tools, with no additional scripting runtime or packages. Each entry point accepts `--help`.
+
+The Swift files are organized by responsibility: `Packaging.swift`, `HomebrewCask.swift`, `KeychainVerification.swift`, `Signing.swift`, and `ArchiveValidation.swift`. `Support.swift` and `Options.swift` contain shared helpers, `main.swift` dispatches commands, and `DistributionTests.swift` contains the distribution checks.
 
 Replace the signing identity and provisioning profile path below with the installed identity and downloaded profile for the AppDab team. `appdab-release` names a stored `notarytool` credentials profile, not a provisioning profile. Configure it before packaging using `xcrun notarytool store-credentials appdab-release` and follow the prompts.
 
