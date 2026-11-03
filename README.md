@@ -14,11 +14,11 @@ swift run dab --help
 
 ## Accounts
 
-The signed macOS package shares AppDab's API keys through the same Keychain access group and `AppDab` service. Account changes affect the CLI and AppDab. It runs without App Sandbox, so file commands use supplied paths without folder setup in AppDab.
+The signed macOS package shares AppDab's API keys. Adding or removing an account affects both the CLI and AppDab.
 
 Source builds (`swift build` or `swift run`) continue using the local macOS login Keychain under their own `AppDabCLI` service. They require no AppDab signing certificate or provisioning profile. These accounts remain separate from AppDab's credentials.
 
-See [Signed CLI Distribution](Documentation/SignedDistribution.md) for packaging, Keychain verification, notarization, and Homebrew release preparation. Homebrew publication is not enabled by this change.
+See [Signed CLI Distribution](Documentation/SignedDistribution.md) for packaging, Keychain verification, notarization, and Homebrew release preparation.
 
 Add an API key from its downloaded `.p8` file:
 
@@ -99,6 +99,8 @@ dab builds setExportCompliance --account-id ACCOUNT_ID --app-id APP_ID --build-i
   --needs-documents true --available-on-french-store true \
   --contains-proprietary-cryptography false --contains-third-party-cryptography true \
   --purpose "Encryption for account security" --document-path ./compliance.pdf
+```
+
 ## Beta build localization
 
 Update a build localization's What to Test text with its localization identifier:
@@ -106,6 +108,7 @@ Update a build localization's What to Test text with its localization identifier
 ```sh
 dab betaBuildLocalizations update --account-id ACCOUNT_ID --localization-id LOCALIZATION_ID --whats-new "Test the new flow"
 ```
+
 ## Beta app testing settings
 
 Use `betaAppTesting` for app level TestFlight localizations, review details, and the license agreement:
@@ -125,8 +128,6 @@ dab betaAppTesting updateLicenseAgreement --account-id ACCOUNT_ID --app-id APP_I
 ```
 
 The localization and review detail updates require their complete field sets. Use `--help` on either update command to see every required option.
-
-The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.
 
 ## Screenshots and app previews
 
