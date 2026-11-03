@@ -5,14 +5,14 @@ on:
 
 jobs:
   distribution:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - run: scripts/test_distribution.sh
 
   format:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - run: brew install swiftformat
-      - run: swiftformat Sources Tests Package.swift --lint --reporter github-actions-log --cache ignore
+      - run: swiftformat Sources Tests scripts Package.swift --lint --reporter github-actions-log --cache ignore

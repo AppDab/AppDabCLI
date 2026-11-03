@@ -62,7 +62,6 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 # Local distribution and signing inputs
-__pycache__/
 *.p12
 *.p8
 *.provisionprofile

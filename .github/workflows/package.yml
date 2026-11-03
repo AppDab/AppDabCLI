@@ -20,7 +20,7 @@ jobs:
       - name: Test
         run: |
           swift test --force-resolved-versions
-          python3 -m unittest discover -s scripts -p 'test_*.py'
+          scripts/test_distribution.sh
       - name: Prepare signing and notarization
         env:
           CERTIFICATE: ${{ secrets.APPDAB_DEVELOPER_ID_P12_BASE64 }}
@@ -57,10 +57,10 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$SIGNING_IDENTITY"
-          python3 scripts/package_cli.py --version "$VERSION" --identity "$SIGNING_IDENTITY" \
+          scripts/package_cli.sh --version "$VERSION" --identity "$SIGNING_IDENTITY" \
             --profile "$RUNNER_TEMP/cli.provisionprofile" --output "$RUNNER_TEMP/release" \
             --notary-profile appdab-release --notary-keychain "$RUNNER_TEMP/signing.keychain-db"
-          python3 scripts/generate_homebrew_cask.py --version "$VERSION" \
+          scripts/generate_homebrew_cask.sh --version "$VERSION" \
             --archive "$RUNNER_TEMP/release/AppDabCLI-$VERSION.zip" \
             --output "$RUNNER_TEMP/release/appdab-cli.rb"
       - uses: actions/upload-artifact@v4

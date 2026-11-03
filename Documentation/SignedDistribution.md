@@ -27,8 +27,10 @@ Certificates, private keys, downloaded profiles, and notarization credentials do
 
 Run from a logged in macOS session with Xcode selected:
 
+The scripts use Bash entry points and a shared Swift implementation in `scripts/distribution.swift`. They require only Xcode's Swift toolchain and the macOS command line tools, with no additional scripting runtime or packages. Each entry point accepts `--help`.
+
 ```sh
-python3 scripts/package_cli.py \
+scripts/package_cli.sh \
   --version 1.0.0 \
   --identity 'Developer ID Application: YOUR NAME (R7YA4RGA8U)' \
   --profile /path/to/AppDabCLI_Developer_ID.provisionprofile \
@@ -47,7 +49,7 @@ For a quick local proof, `--binary /path/to/dab` packages an already built execu
 Configure an account in AppDab, then run:
 
 ```sh
-python3 scripts/verify_keychain_access.py \
+scripts/verify_keychain_access.sh \
   --app /tmp/appdab-cli-release/AppDabCLI-1.0.0/AppDabCLI.app
 ```
 
@@ -59,7 +61,7 @@ Run the automated tests with:
 
 ```sh
 swift test --force-resolved-versions
-python3 -m unittest discover -s scripts -p 'test_*.py'
+scripts/test_distribution.sh
 ```
 
 ## Homebrew and publishing
@@ -67,7 +69,7 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 Generate the cask only from a final notarized archive:
 
 ```sh
-python3 scripts/generate_homebrew_cask.py \
+scripts/generate_homebrew_cask.sh \
   --version 1.0.0 \
   --archive /tmp/appdab-cli-release/AppDabCLI-1.0.0.zip \
   --output /tmp/appdab-cli-release/appdab-cli.rb
