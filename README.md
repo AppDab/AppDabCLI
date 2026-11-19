@@ -6,15 +6,23 @@ Contributors adding a CLI command for an AppDabKit action should follow [Adding 
 
 ## Build and test
 
+Requires macOS 15 or later and a Swift 6.1 or later toolchain. Run these commands from the repository root:
+
 ```sh
 swift build
 swift test
 swift run dab --help
 ```
 
+The examples below use `dab` for an installed CLI. When running from source, use `swift run dab` instead.
+
 ## Accounts
 
-The standalone CLI stores App Store Connect API keys in the user's macOS login Keychain under its own `AppDabCLI` service. These credentials stay local to this Mac rather than syncing through iCloud Keychain. The CLI does not require AppDab, an app group entitlement, or an AppDab signing certificate, including when launched with `swift run`.
+The signed macOS package shares AppDab's API keys. Adding or removing an account affects both the CLI and AppDab.
+
+Source builds (`swift build` or `swift run`) continue using the local macOS login Keychain under their own `AppDabCLI` service. They require no AppDab signing certificate or provisioning profile. These accounts remain separate from AppDab's credentials.
+
+Release maintainers can follow [Signed CLI Distribution](Documentation/SignedDistribution.md) to build and verify signed packages and prepare Homebrew releases. Signing is not required to build, test, or use the CLI from source.
 
 Add an API key from its downloaded `.p8` file:
 
@@ -95,6 +103,8 @@ dab builds setExportCompliance --account-id ACCOUNT_ID --app-id APP_ID --build-i
   --needs-documents true --available-on-french-store true \
   --contains-proprietary-cryptography false --contains-third-party-cryptography true \
   --purpose "Encryption for account security" --document-path ./compliance.pdf
+```
+
 ## Beta build localization
 
 Update a build localization's What to Test text with its localization identifier:
@@ -102,6 +112,7 @@ Update a build localization's What to Test text with its localization identifier
 ```sh
 dab betaBuildLocalizations update --account-id ACCOUNT_ID --localization-id LOCALIZATION_ID --whats-new "Test the new flow"
 ```
+
 ## Beta app testing settings
 
 Use `betaAppTesting` for app level TestFlight localizations, review details, and the license agreement:
@@ -121,8 +132,6 @@ dab betaAppTesting updateLicenseAgreement --account-id ACCOUNT_ID --app-id APP_I
 ```
 
 The localization and review detail updates require their complete field sets. Use `--help` on either update command to see every required option.
-
-The AppDab built in CLI uses AppDab’s shared Keychain account store instead. Both CLI variants run the same `AppDabAutomation` actions through `AppDabCLIKit`.
 
 ## Screenshots and app previews
 
