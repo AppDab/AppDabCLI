@@ -8,6 +8,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Test CLI
+        run: swift test --force-resolved-versions
       - run: scripts/test_distribution.sh
 
   format:
