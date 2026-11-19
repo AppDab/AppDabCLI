@@ -4,7 +4,7 @@ func validateArchivePath(_ path: String, link: String? = nil) throws {
     let parts = path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
     guard !path.hasPrefix("/"), !path.contains("\0"), !path.contains("\n"), !path.contains("\r"), !parts.contains(".."), let root = parts.first, ["AppDabCLI.app", "__MACOSX"].contains(root) else { throw Failure("Unexpected archive path.") }
     if let link {
-        guard !link.hasPrefix("/"), !link.contains("\0") else { throw Failure("Archive symlink leaves the bundle.") }
+        guard !link.hasPrefix("/"), !link.contains("\0"), !link.split(separator: "/").contains("..") else { throw Failure("Archive symlink leaves the bundle.") }
         var resolved = Array(parts.dropLast())
         for part in link.split(separator: "/").map(String.init) {
             if part == ".." {
