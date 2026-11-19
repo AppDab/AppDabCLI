@@ -28,6 +28,9 @@ func verify(_ options: Options) throws {
     }
     let unentitled = root.appendingPathComponent("Unentitled.app")
     try files.copyItem(at: app, to: unentitled)
+    // This deliberately re-signed local fixture must not retain the download's quarantine.
+    // Keep the original package and its security attributes unchanged.
+    try run(["/usr/bin/xattr", "-drs", "com.apple.quarantine", unentitled.path], capture: true)
     try files.removeItem(at: unentitled.appendingPathComponent("Contents/embedded.provisionprofile"))
     let empty = root.appendingPathComponent("empty.entitlements")
     try writePlist([:], to: empty)
