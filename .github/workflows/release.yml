@@ -1,4 +1,4 @@
-name: Build and publish CLI releases
+name: Release
 
 on:
   release:
