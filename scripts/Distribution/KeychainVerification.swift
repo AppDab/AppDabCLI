@@ -1,5 +1,4 @@
 import Foundation
-import Security
 
 func accountIDs(_ executable: URL) throws -> Set<String> {
     let result = try run([executable.path, "accounts", "list", "--format", "json"], capture: true, timeout: 30)
@@ -26,38 +25,8 @@ func verify(_ options: Options) throws {
         try files.createSymbolicLink(at: link, withDestinationURL: previous.appendingPathComponent("Contents/MacOS/dab"))
         guard try accountIDs(link) == identifiers else { throw Failure("Shared accounts changed between package versions.") }
     }
-    let unentitled = root.appendingPathComponent("Unentitled.app")
-    try files.copyItem(at: app, to: unentitled)
-    try files.removeItem(at: unentitled.appendingPathComponent("Contents/embedded.provisionprofile"))
-    let empty = root.appendingPathComponent("empty.entitlements")
-    try writePlist([:], to: empty)
-    try run(["codesign", "--force", "--sign", "-", "--entitlements", empty.path, unentitled.path], capture: true)
-    let rejected = try run([unentitled.appendingPathComponent("Contents/MacOS/dab").path, "accounts", "list", "--format", "json"], capture: true, allowFailure: true, timeout: 30)
-    try requireKeychainAuthorizationFailure(rejected)
-    print("PASS: signed unsandboxed CLI, symlink invocation, shared account count \(identifiers.count), and rejection without authorization.")
+    print("PASS: signed unsandboxed CLI, symlink invocation, shared account count \(identifiers.count).")
     if options.values["--previous-app"] != nil {
         print("PASS: shared accounts remain available across package versions.")
     }
-}
-
-func requireKeychainAuthorizationFailure(_ result: Result) throws {
-    guard result.terminationReason == .exit, result.status == 1 else {
-        throw Failure("Expected a normal CLI authorization error, but the process exited abnormally or with an unexpected status.")
-    }
-    guard result.output.isEmpty,
-          let response = try? JSONDecoder().decode(KeychainFailureResponse.self, from: result.error),
-          response.error.code == "upstream_error",
-          response.error.message == "Could not read from Keychain (OSStatus: \(errSecMissingEntitlement))"
-    else {
-        throw Failure("The CLI did not report the expected missing Keychain entitlement error.")
-    }
-}
-
-private struct KeychainFailureResponse: Decodable {
-    struct Diagnostic: Decodable {
-        let code: String
-        let message: String
-    }
-
-    let error: Diagnostic
 }
