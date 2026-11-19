@@ -83,5 +83,11 @@ func tests() throws {
         try Data("invalid ZIP".utf8).write(to: unsafe)
         try rejects { try validateArchive(unsafe) }
     }
+    try check("only the expected CLI Keychain authorization error is accepted") {
+        try testKeychainAuthorizationResponses()
+    }
+    try check("process capture preserves abnormal termination") {
+        try testKeychainVerificationCrash()
+    }
     print("\(count) distribution tests passed.")
 }

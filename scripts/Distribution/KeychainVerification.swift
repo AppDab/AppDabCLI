@@ -1,4 +1,5 @@
 import Foundation
+import Security
 
 func accountIDs(_ executable: URL) throws -> Set<String> {
     let result = try run([executable.path, "accounts", "list", "--format", "json"], capture: true, timeout: 30)
@@ -32,9 +33,31 @@ func verify(_ options: Options) throws {
     try writePlist([:], to: empty)
     try run(["codesign", "--force", "--sign", "-", "--entitlements", empty.path, unentitled.path], capture: true)
     let rejected = try run([unentitled.appendingPathComponent("Contents/MacOS/dab").path, "accounts", "list", "--format", "json"], capture: true, allowFailure: true, timeout: 30)
-    guard rejected.status != 0 else { throw Failure("A shared mode package without Keychain authorization unexpectedly succeeded.") }
+    try requireKeychainAuthorizationFailure(rejected)
     print("PASS: signed unsandboxed CLI, symlink invocation, shared account count \(identifiers.count), and rejection without authorization.")
     if options.values["--previous-app"] != nil {
         print("PASS: shared accounts remain available across package versions.")
     }
+}
+
+func requireKeychainAuthorizationFailure(_ result: Result) throws {
+    guard result.terminationReason == .exit, result.status == 1 else {
+        throw Failure("Expected a normal CLI authorization error, but the process exited abnormally or with an unexpected status.")
+    }
+    guard result.output.isEmpty,
+          let response = try? JSONDecoder().decode(KeychainFailureResponse.self, from: result.error),
+          response.error.code == "upstream_error",
+          response.error.message == "Could not read from Keychain (OSStatus: \(errSecMissingEntitlement))"
+    else {
+        throw Failure("The CLI did not report the expected missing Keychain entitlement error.")
+    }
+}
+
+private struct KeychainFailureResponse: Decodable {
+    struct Diagnostic: Decodable {
+        let code: String
+        let message: String
+    }
+
+    let error: Diagnostic
 }

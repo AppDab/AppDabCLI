@@ -17,6 +17,7 @@ struct Failure: Error, CustomStringConvertible {
 
 struct Result {
     let status: Int32
+    let terminationReason: Process.TerminationReason
     let output: Data
     let error: Data
     var text: String {
@@ -59,7 +60,7 @@ func run(_ arguments: [String], capture: Bool = false, allowFailure: Bool = fals
     if timeout != nil, process.terminationReason == .uncaughtSignal, process.terminationStatus == SIGTERM {
         throw Failure("The command exceeded its time limit.")
     }
-    let result = try Result(status: process.terminationStatus, output: Data(contentsOf: outputURL), error: Data(contentsOf: errorURL))
+    let result = try Result(status: process.terminationStatus, terminationReason: process.terminationReason, output: Data(contentsOf: outputURL), error: Data(contentsOf: errorURL))
     if result.status != 0, !allowFailure {
         // Captured account responses are never included in diagnostics.
         throw Failure("\(arguments.prefix(2).joined(separator: " ")) failed (status \(result.status)).")
