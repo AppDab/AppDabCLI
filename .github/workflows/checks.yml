@@ -1,11 +1,11 @@
-name: Test CLI and check formatting
+name: Validation
 
 on:
   pull_request:
 
 jobs:
   distribution:
-    name: Run CLI and release tooling tests
+    name: CLI and release tooling tests
     runs-on: macos-latest
     steps:
       - name: Check out source code
@@ -16,7 +16,7 @@ jobs:
         run: scripts/test_distribution.sh
 
   format:
-    name: Check Swift formatting
+    name: Swift formatting
     runs-on: macos-latest
     steps:
       - name: Check out source code
