@@ -1,6 +1,8 @@
-name: Signed CLI release candidate
+name: Signed CLI release
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       version:
@@ -15,8 +17,31 @@ jobs:
   package:
     runs-on: macos-26
     timeout-minutes: 60
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+      - name: Resolve version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == release ]]; then
+            if [[ "$RELEASE_TAG" != v* ]]; then
+              echo 'Release tags must use vMAJOR.MINOR.PATCH.' >&2
+              exit 1
+            fi
+            version="${RELEASE_TAG#v}"
+          else
+            version="$REQUESTED_VERSION"
+          fi
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Version must contain three numeric components, such as 1.0.0.' >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Test
         run: |
           swift test --force-resolved-versions
@@ -52,7 +77,7 @@ jobs:
           xcrun notarytool store-credentials appdab-release --key "$RUNNER_TEMP/notary.p8" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER_ID" --keychain "$RUNNER_TEMP/signing.keychain-db"
       - name: Package and notarize
         env:
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ steps.version.outputs.version }}
           SIGNING_IDENTITY: ${{ secrets.APPDAB_DEVELOPER_ID_IDENTITY }}
         run: |
           set -euo pipefail
@@ -75,3 +100,28 @@ jobs:
         run: |
           security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
           rm -f "$RUNNER_TEMP/developer-id.p12" "$RUNNER_TEMP/cli.provisionprofile" "$RUNNER_TEMP/notary.p8"
+
+  publish:
+    name: Attach release assets
+    if: github.event_name == 'release'
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: AppDabCLI-release-candidate
+          path: release
+      - name: Upload assets to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            "release/AppDabCLI-$VERSION.zip" \
+            "release/AppDabCLI-$VERSION.zip.sha256" \
+            release/appdab-cli.rb
