@@ -15,8 +15,7 @@ func renderCask(version: String, sha256: String) throws -> String {
 
       depends_on macos: ">= :sequoia"
 
-      app "AppDabCLI.app"
-      binary "#{appdir}/AppDabCLI.app/Contents/MacOS/dab", target: "dab"
+      binary "AppDabCLI.app/Contents/MacOS/dab", target: "dab"
     end
 
     """
