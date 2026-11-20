@@ -13,7 +13,7 @@ func renderCask(version: String, sha256: String) throws -> String {
       desc "App Store Connect automation with shared AppDab credentials"
       homepage "https://github.com/AppDab/AppDabCLI"
 
-      depends_on macos: ">= :sequoia"
+      depends_on macos: :sequoia
 
       binary "AppDabCLI.app/Contents/MacOS/dab", target: "dab"
     end
