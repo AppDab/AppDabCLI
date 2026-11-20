@@ -27,6 +27,12 @@ struct TextStyle: Sendable {
         decorate(text, codes: ["1", "33"])
     }
 
+    func sanitize(_ text: String) -> String {
+        String(text.unicodeScalars.map { scalar in
+            scalar.properties.generalCategory == .control && scalar != "\n" ? "�" : Character(String(scalar))
+        })
+    }
+
     private func decorate(_ text: String, codes: [String]) -> String {
         guard supportsColor else {
             return text

@@ -3,8 +3,8 @@ struct TextTable {
     let rows: [[String]]
 
     func render(style: TextStyle) -> String {
-        let sanitizedHeaders = headers.map(Self.sanitize)
-        let sanitizedRows = rows.map { $0.map(Self.sanitize) }
+        let sanitizedHeaders = headers.map(style.sanitize)
+        let sanitizedRows = rows.map { $0.map(style.sanitize) }
         let widths = sanitizedHeaders.indices.map { column in
             ([sanitizedHeaders[column]] + sanitizedRows.compactMap { $0.indices.contains(column) ? $0[column] : nil })
                 .map(Self.displayWidth)
@@ -50,11 +50,5 @@ struct TextTable {
             }
             return width + (scalar.value >= 0x1100 ? 2 : 1)
         }
-    }
-
-    private static func sanitize(_ value: String) -> String {
-        String(value.unicodeScalars.map { scalar in
-            scalar.properties.generalCategory == .control && scalar != "\n" ? "�" : Character(String(scalar))
-        })
     }
 }
