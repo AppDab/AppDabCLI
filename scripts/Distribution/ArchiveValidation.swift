@@ -48,8 +48,12 @@ func validateArchive(_ archive: URL) throws {
         let next = offset + 46 + length + extra + comment
         guard next <= directoryEnd else { throw Failure("Truncated ZIP entry.") }
         guard let name = String(data: data.subdata(in: offset + 46 ..< offset + 46 + length), encoding: .utf8), names.insert(name).inserted else { throw Failure("Invalid or duplicate ZIP path.") }
-        try validateArchivePath(name)
         let mode = try integer(offset + 38, 4) >> 16
+        if name == "VERSION" {
+            guard mode & 0o170000 == 0o100000 else { throw Failure("VERSION must be a regular file.") }
+        } else {
+            try validateArchivePath(name)
+        }
         if mode & 0o170000 == 0o120000 {
             guard try integer(offset + 24, 4) <= 4096 else { throw Failure("Oversized archive symlink.") }
             let target = try run(["unzip", "-p", archive.path, name], capture: true).output

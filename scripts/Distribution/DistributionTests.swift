@@ -59,6 +59,29 @@ func tests() throws {
             try rejects { try validateArchivePath(path) }
         }
     }
+    try check("release ZIP keeps the app bundle beside the version file") {
+        let temporary = try temporaryDirectory()
+        defer { try? files.removeItem(at: temporary) }
+        let app = temporary.appendingPathComponent("AppDabCLI.app")
+        let version = temporary.appendingPathComponent("VERSION")
+        try files.createDirectory(at: app, withIntermediateDirectories: true)
+        let archive = temporary.appendingPathComponent("release.zip")
+        try run(["ditto", "-c", "-k", "--keepParent", app.path, archive.path])
+        try appendReleaseVersion("1.2.3", to: archive, in: temporary)
+        try validateArchive(archive)
+        let extracted = temporary.appendingPathComponent("extracted")
+        try run(["ditto", "-x", "-k", archive.path, extracted.path])
+        guard try files.contentsOfDirectory(atPath: extracted.path).sorted() == ["AppDabCLI.app", "VERSION"],
+              try Data(contentsOf: extracted.appendingPathComponent("VERSION")) == Data("1.2.3\n".utf8)
+        else { throw Failure("Unexpected release ZIP layout.") }
+
+        try files.removeItem(at: version)
+        try files.createSymbolicLink(atPath: version.path, withDestinationPath: "AppDabCLI.app")
+        let unsafe = temporary.appendingPathComponent("unsafe.zip")
+        try run(["ditto", "-c", "-k", "--keepParent", app.path, unsafe.path])
+        try run(["zip", "-q", "-j", "-X", "-y", unsafe.path, version.path])
+        try rejects { try validateArchive(unsafe) }
+    }
     try check("internal resource links work and escaping links are rejected") {
         try validateArchivePath("AppDabCLI.app/Locales.bundle", link: "Contents/Resources/Locales.bundle")
         for link in ["../../outside", "/outside"] {

@@ -4,6 +4,23 @@
 
 Contributors adding a CLI command for an AppDabKit action should follow [Adding a Typed CLI Command](Documentation/AddingCLICommand.md). Each CLI command uses named options and a typed action input.
 
+## Install with mise
+
+On macOS 15 or later, use this command once the first stable release with the new ZIP layout is published:
+
+```sh
+mise use -g github:AppDab/AppDabCLI
+mise exec -- dab --help
+```
+
+To install a prerelease, append its version without the leading `v` to the tool name, for example `@0.0.4`. Releases through `0.0.4` also need `strip_components=0` to preserve the signed app bundle for AppDab's shared Keychain:
+
+```sh
+mise use -g 'github:AppDab/AppDabCLI[strip_components=0]@0.0.4'
+```
+
+Omit `-g` to pin the CLI in a project's `mise.toml`.
+
 ## Build and test
 
 Requires macOS 15 or later and a Swift 6.1 or later toolchain. Run these commands from the repository root:
