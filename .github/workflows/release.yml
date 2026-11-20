@@ -122,7 +122,7 @@ jobs:
         with:
           name: AppDabCLI-release-candidate
           path: release
-      - name: Attach ZIP, checksum, and cask to release
+      - name: Attach ZIP and checksum to release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -131,5 +131,76 @@ jobs:
         run: |
           gh release upload "$RELEASE_TAG" \
             "release/AppDabCLI-$VERSION.zip" \
-            "release/AppDabCLI-$VERSION.zip.sha256" \
-            release/appdab-cli.rb
+            "release/AppDabCLI-$VERSION.zip.sha256"
+
+  homebrew:
+    name: Open Homebrew tap pull request
+    if: github.event_name == 'release'
+    needs: [package, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Download release files from build
+        uses: actions/download-artifact@v7
+        with:
+          name: AppDabCLI-release-candidate
+          path: release
+      - name: Check out Homebrew tap
+        uses: actions/checkout@v5
+        with:
+          repository: AppDab/homebrew-tap
+          ref: main
+          token: ${{ secrets.APPDAB_HOMEBREW_TAP_TOKEN }}
+          path: tap
+      - name: Propose the cask update
+        working-directory: tap
+        env:
+          GH_TOKEN: ${{ secrets.APPDAB_HOMEBREW_TAP_TOKEN }}
+          GH_REPO: AppDab/homebrew-tap
+          VERSION: ${{ needs.package.outputs.version }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+        run: |
+          set -euo pipefail
+          cask=Casks/appdab-cli.rb
+          generated_cask=../release/appdab-cli.rb
+          branch="appdab-cli/v$VERSION"
+
+          if cmp -s "$generated_cask" "$cask"; then
+            echo 'The tap already has this cask.'
+            exit 0
+          fi
+          if [[ -f "$cask" ]]; then
+            current_version="$(sed -nE 's/^[[:space:]]*version "([0-9]+\.[0-9]+\.[0-9]+)"$/\1/p' "$cask")"
+            if [[ -n "$current_version" && "$(printf '%s\n' "$VERSION" "$current_version" | sort -V | tail -n 1)" != "$VERSION" ]]; then
+              echo "The tap already has a newer version ($current_version)."
+              exit 0
+            fi
+          fi
+
+          remote_branch="$(git ls-remote origin "refs/heads/$branch")"
+          if [[ -n "$remote_branch" ]]; then
+            git fetch origin "refs/heads/$branch"
+            git switch -c "$branch" FETCH_HEAD
+          else
+            git switch -c "$branch"
+          fi
+
+          mkdir -p Casks
+          cp "$generated_cask" "$cask"
+          git add -- "$cask"
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "Update AppDab CLI to $VERSION"
+            git push origin "HEAD:refs/heads/$branch"
+          fi
+
+          pull_request="$(gh pr list --base main --head "$branch" --state open --json url --jq '.[0].url // empty')"
+          if [[ -n "$pull_request" ]]; then
+            echo "$pull_request"
+          else
+            gh pr create --base main --head "$branch" \
+              --title "Update AppDab CLI to $VERSION" \
+              --body "Update the cask to use the signed ZIP from $RELEASE_URL."
+          fi

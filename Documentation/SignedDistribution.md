@@ -38,7 +38,7 @@ The package command builds both architectures, signs, notarizes, and creates the
 
 ## Build with GitHub Actions
 
-Publishing a GitHub release with a tag such as `v1.0.0` starts **Release**. It builds, signs, and notarizes the CLI, then attaches the ZIP, checksum, and Homebrew cask to that release.
+Publishing a GitHub release with a tag such as `v1.0.0` starts **Release**. It builds, signs, and notarizes the CLI, then attaches the ZIP and checksum to that release. After the upload succeeds, the workflow uses the generated cask from the workflow artifact to open a pull request in `AppDab/homebrew-tap`.
 
 For a candidate build, run the same workflow manually from the Actions tab with a version such as `1.0.0`. Download the files from the workflow artifacts.
 
@@ -53,10 +53,9 @@ Required repository secrets:
 | `APPDAB_NOTARY_KEY_BASE64` | Base64 encoded notarization API private key |
 | `APPDAB_NOTARY_KEY_ID` | API key identifier |
 | `APPDAB_NOTARY_ISSUER_ID` | API issuer identifier |
+| `APPDAB_HOMEBREW_TAP_TOKEN` | Fine-grained personal access token scoped to `AppDab/homebrew-tap` with write access to Contents and Pull requests |
 
 ## Publish
 
-1. Publish the GitHub release and wait for **Release** to attach its assets.
-2. Publish the generated `appdab-cli.rb` in the Homebrew tap.
-
-Use the exact ZIP used to generate the cask so its checksum matches.
+1. Publish the GitHub release and wait for **Release** to attach the ZIP and checksum.
+2. Review and merge the pull request for `Casks/appdab-cli.rb` in `AppDab/homebrew-tap`.
