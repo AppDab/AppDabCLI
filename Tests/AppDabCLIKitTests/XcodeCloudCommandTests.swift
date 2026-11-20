@@ -39,6 +39,24 @@ struct XcodeCloudCommandTests {
         }
     }
 
+    @Test func neutralizesWorkflowNameTerminalControlsInText() async throws {
+        let provider = XcodeCloudDataProvider()
+        let name = "Release \u{001B}[2J\u{009B}H"
+        await provider.setWorkflow(.init(workflowID: "workflow-1", name: name))
+        let runner = makeRunner(provider: provider)
+        let arguments = arguments(for: ["getWorkflow", "--workflow-id", "workflow-1"])
+
+        let text = await runner.run(arguments: arguments)
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("Release �[2J�H"))
+        #expect(!text.standardOutput.contains("\u{001B}"))
+        #expect(!text.standardOutput.contains("\u{009B}"))
+
+        let json = await runner.run(arguments: arguments + ["--format", "json"])
+        let envelope = try responseEnvelope(json)
+        #expect(envelope["data"]?.objectValue?["workflow"]?.objectValue?["name"] == .string(name))
+    }
+
     @Test(arguments: [([], nil as Bool?), (["--clean"], true), (["--no-clean"], false)])
     func startsBuildDirectly(cleanArguments: [String], clean: Bool?) async throws {
         let provider = XcodeCloudDataProvider()
