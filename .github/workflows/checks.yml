@@ -9,7 +9,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Run CLI tests
         run: swift test --force-resolved-versions
       - name: Run release tooling tests
@@ -20,7 +20,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install SwiftFormat
         run: brew install swiftformat
       - name: Check Swift formatting
