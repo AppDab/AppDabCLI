@@ -4,6 +4,16 @@
 
 Contributors adding a CLI command for an AppDabKit action should follow [Adding a Typed CLI Command](Documentation/AddingCLICommand.md). Each CLI command uses named options and a typed action input.
 
+## Install with Homebrew
+
+On macOS 15 or later, add the AppDab tap and install the CLI:
+
+```sh
+brew tap appdab/tap
+brew install --cask appdab-cli
+dab --help
+```
+
 ## Install with mise
 
 On macOS 15 or later, use this command once the first stable release with the new ZIP layout is published:
