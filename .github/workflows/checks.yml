@@ -1,0 +1,27 @@
+name: Validation
+
+on:
+  pull_request:
+
+jobs:
+  distribution:
+    name: CLI and release tooling tests
+    runs-on: macos-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+      - name: Run CLI tests
+        run: swift test --force-resolved-versions
+      - name: Run release tooling tests
+        run: scripts/test_distribution.sh
+
+  format:
+    name: Swift formatting
+    runs-on: macos-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+      - name: Install SwiftFormat
+        run: brew install swiftformat
+      - name: Check Swift formatting
+        run: swiftformat Sources Tests scripts Package.swift --lint --reporter github-actions-log --cache ignore

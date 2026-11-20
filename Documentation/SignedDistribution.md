@@ -38,7 +38,9 @@ The package command builds both architectures, signs, notarizes, and creates the
 
 ## Build with GitHub Actions
 
-Run **Signed CLI release candidate** from the Actions tab with the release version. Download the ZIP, checksum, and cask from the workflow artifacts.
+Publishing a GitHub release with a tag such as `v1.0.0` starts **Release**. It builds, signs, and notarizes the CLI, then attaches the ZIP, checksum, and Homebrew cask to that release.
+
+For a candidate build, run the same workflow manually from the Actions tab with a version such as `1.0.0`. Download the files from the workflow artifacts.
 
 Required repository secrets:
 
@@ -54,7 +56,7 @@ Required repository secrets:
 
 ## Publish
 
-1. Upload `AppDabCLI-1.0.0.zip` and `AppDabCLI-1.0.0.zip.sha256` to the `v1.0.0` release in `AppDab/AppDabCLI`.
+1. Publish the GitHub release and wait for **Release** to attach its assets.
 2. Publish the generated `appdab-cli.rb` in the Homebrew tap.
 
 Use the exact ZIP used to generate the cask so its checksum matches.
