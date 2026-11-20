@@ -1,5 +1,12 @@
 import Foundation
 
+func appendReleaseVersion(_ version: String, to archive: URL, in stage: URL) throws {
+    // A top-level file keeps mise from stripping the signed app bundle directory.
+    let marker = stage.appendingPathComponent("VERSION")
+    try (version + "\n").write(to: marker, atomically: true, encoding: .utf8)
+    try run(["zip", "-q", "-j", "-X", archive.path, marker.path])
+}
+
 func package(_ options: Options) throws {
     let version = options["--version"]
     try validateVersion(version)
@@ -72,6 +79,7 @@ func package(_ options: Options) throws {
         try files.removeItem(at: archive)
         try run(["ditto", "-c", "-k", "--keepParent", app.path, archive.path])
     }
+    try appendReleaseVersion(version, to: archive, in: stage)
     try (checksum(archive) + "  " + archive.lastPathComponent + "\n").write(to: digest, atomically: true, encoding: .utf8)
     try files.createDirectory(at: destination, withIntermediateDirectories: false)
     try files.moveItem(at: app, to: destination.appendingPathComponent(app.lastPathComponent))
