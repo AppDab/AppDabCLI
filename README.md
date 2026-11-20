@@ -158,3 +158,20 @@ For example, recover an interrupted preview upload using the same options, finge
 ```sh
 dab appPreviews upload --account-id ACCOUNT --version-id VERSION --locale en-US --placement-group GROUP --file ./preview.mov --preview-frame-time-code 00:00:01:00 --wait --timeout 300 --confirm FINGERPRINT --idempotency-key UPLOAD_KEY --reconcile
 ```
+
+## Xcode Cloud
+
+```sh
+dab xcodeCloud listWorkflows --account-id ACCOUNT_ID --app-id APP_ID
+dab xcodeCloud getWorkflow --account-id ACCOUNT_ID --workflow-id WORKFLOW_ID
+dab xcodeCloud listGitReferences --account-id ACCOUNT_ID --repository-id REPOSITORY_ID
+dab xcodeCloud startBuild --account-id ACCOUNT_ID --workflow-id WORKFLOW_ID --source-branch-or-tag-id GIT_REFERENCE_ID --clean
+dab xcodeCloud getBuild --account-id ACCOUNT_ID --build-run-id BUILD_RUN_ID
+```
+
+Use the workflow's repository ID to list branches and tags. Pass the resulting
+Git reference ID to `startBuild` or omit it to use the default source. Omit
+`--clean` to use the workflow setting, or pass `--no-clean` to override it.
+Each `startBuild` call queues a build immediately and returns the build run ID
+for `getBuild`. When following a list cursor with `--cursor`, pass the same
+`--limit` as the previous page. All five commands support `--format json`.

@@ -24,6 +24,7 @@ struct RootCommand: ParsableCommand {
             AppsCommand.self,
             AppVersionCommand.self,
             BuildsCommand.self,
+            XcodeCloudCommand.self,
             BetaGroupsCommand.self,
             BetaTestersCommand.self,
             BetaBuildLocalizationsCommand.self,

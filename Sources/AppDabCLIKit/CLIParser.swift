@@ -92,6 +92,18 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BuildsExpireCommand.self)
         case ["builds", "setExportCompliance"]:
             RootCommand.helpMessage(for: BuildsSetExportComplianceCommand.self)
+        case ["xcodeCloud"]:
+            RootCommand.helpMessage(for: XcodeCloudCommand.self)
+        case ["xcodeCloud", "listWorkflows"]:
+            RootCommand.helpMessage(for: XcodeCloudListWorkflowsCommand.self)
+        case ["xcodeCloud", "getWorkflow"]:
+            RootCommand.helpMessage(for: XcodeCloudGetWorkflowCommand.self)
+        case ["xcodeCloud", "listGitReferences"]:
+            RootCommand.helpMessage(for: XcodeCloudListGitReferencesCommand.self)
+        case ["xcodeCloud", "startBuild"]:
+            RootCommand.helpMessage(for: XcodeCloudStartBuildCommand.self)
+        case ["xcodeCloud", "getBuild"]:
+            RootCommand.helpMessage(for: XcodeCloudGetBuildCommand.self)
         case ["betaGroups"]:
             RootCommand.helpMessage(for: BetaGroupsCommand.self)
         case ["betaGroups", "list"]:
