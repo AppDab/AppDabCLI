@@ -81,6 +81,17 @@ Version list filters (`--platform`, `--state`, `--version`, and `--version-id`) 
 
 Mutation previews and audit records are stored in `~/Library/Application Support/AppDabCLI/dab-audit.sqlite`.
 
+## TestFlight builds and screenshot feedback
+
+```sh
+dab builds list --account-id ACCOUNT_ID --app-id APP_ID --sort version
+dab builds get --account-id ACCOUNT_ID --build-id BUILD_ID
+dab testflight feedback list --account-id ACCOUNT_ID --app-id APP_ID
+dab testflight feedback get --account-id ACCOUNT_ID --submission-id SUBMISSION_ID
+```
+
+Builds are ordered by newest upload by default. Use `--sort version` for descending prerelease versions and build numbers. Pass `--format json` to get all build details and screenshot attachment metadata.
+
 ## Beta groups and TestFlight writes
 
 List beta groups for an app or inspect one group:

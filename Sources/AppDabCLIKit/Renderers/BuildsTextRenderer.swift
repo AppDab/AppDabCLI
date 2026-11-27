@@ -8,12 +8,15 @@ struct BuildsTextRenderer {
             sections.append("No builds found.")
         } else {
             sections.append(TextTable(
-                headers: ["Build", "Platform", "Processing", "Uploaded", "Expired", "Build ID"],
+                headers: ["Build", "Version", "Platform", "Processing", "Internal beta state", "External beta state", "Uploaded", "Expired", "Build ID"],
                 rows: list.builds.map {
                     [
-                        $0.version,
+                        $0.buildNumber,
+                        $0.prereleaseVersion ?? "-",
                         $0.platform ?? "-",
                         $0.processingState ?? "-",
+                        $0.internalBetaState ?? "-",
+                        $0.externalBetaState ?? "-",
                         $0.uploadedDate?.formatted(.iso8601) ?? "-",
                         $0.expired.map { $0 ? "Yes" : "No" } ?? "-",
                         $0.buildID,
