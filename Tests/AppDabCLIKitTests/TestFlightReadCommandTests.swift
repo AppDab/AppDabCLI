@@ -3,14 +3,14 @@ import AppDabAutomation
 import Testing
 
 struct TestFlightReadCommandTests {
-    @Test(arguments: [
-        (["builds", "get", "--build-id", "build"], AutomationActionID.getTestFlightBuild),
-        (["feedback", "get", "--submission-id", "submission"], AutomationActionID.getTestFlightScreenshotFeedback),
-    ])
-    func parsesDetailWithoutAnAppID(arguments: [String], id: AutomationActionID) throws {
+    @Test func detailsUseOnlyAccountAndResourceIdentifiers() throws {
         let parser = CLIParser()
-        let result = try parser.parse(["testflight"] + arguments + ["--account-id", "account"])
-        #expect(result.actionID == id)
+        let build = try parser.parse(["builds", "get", "--build-id", "build", "--account-id", "account"])
+        let feedback = try parser.parse([
+            "testflight", "feedback", "get", "--submission-id", "submission", "--account-id", "account",
+        ])
+        #expect(build.actionID == .getBuild)
+        #expect(feedback.actionID == .getTestFlightScreenshotFeedback)
     }
 
     @Test func feedbackListRequiresAnAppID() throws {

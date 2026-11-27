@@ -85,7 +85,7 @@ Mutation previews and audit records are stored in `~/Library/Application Support
 
 ```sh
 dab builds list --account-id ACCOUNT_ID --app-id APP_ID --sort version
-dab testflight builds get --account-id ACCOUNT_ID --build-id BUILD_ID
+dab builds get --account-id ACCOUNT_ID --build-id BUILD_ID
 dab testflight feedback list --account-id ACCOUNT_ID --app-id APP_ID
 dab testflight feedback get --account-id ACCOUNT_ID --submission-id SUBMISSION_ID
 ```

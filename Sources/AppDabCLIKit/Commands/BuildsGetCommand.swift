@@ -21,7 +21,7 @@ struct BuildsGetCommand: ParsableCommand, InvokingCommand {
             input: .init(accountID: accountID, buildID: buildID),
             format: output.format,
             verbose: output.verbose,
-            render: { build, style in BuildTextRenderer().render(build, style: style) },
+            render: { build, style in BuildTextRenderer().render(build, style: style, includesTestFlight: true) },
         )
     }
 }

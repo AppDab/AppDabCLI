@@ -6,16 +6,8 @@ import Foundation
 struct TestFlightCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "testflight",
-        abstract: "Read TestFlight builds and screenshot feedback.",
-        subcommands: [TestFlightBuildsCommand.self, TestFlightFeedbackCommand.self],
-    )
-}
-
-struct TestFlightBuildsCommand: ParsableCommand {
-    static let configuration = CommandConfiguration(
-        commandName: "builds",
-        abstract: "Read TestFlight builds.",
-        subcommands: [TestFlightBuildsGetCommand.self],
+        abstract: "Read TestFlight screenshot feedback.",
+        subcommands: [TestFlightFeedbackCommand.self],
     )
 }
 
@@ -53,35 +45,6 @@ struct TestFlightPagination: ParsableArguments {
         } catch {
             throw ValidationError(error.localizedDescription)
         }
-    }
-}
-
-struct TestFlightBuildsGetCommand: ParsableCommand, InvokingCommand {
-    static let configuration = CommandConfiguration(commandName: "get", abstract: "Read TestFlight build details.")
-
-    @Option(name: .customLong("account-id"), help: "The AppDab account identifier.")
-    var accountID: String
-
-    @Option(name: .customLong("build-id"), help: "The App Store Connect build identifier.")
-    var buildID: String
-    @OptionGroup var output: OutputOptions
-
-    var invocation: CLIInvocation {
-        .read(
-            GetTestFlightBuildAction.self,
-            input: .init(accountID: accountID, buildID: buildID),
-            format: output.format,
-            verbose: output.verbose,
-            render: { result, style in
-                let build = result.build
-                var lines = [style.heading(build.id), "Version: \(build.version ?? "-")", "Build: \(build.buildNumber ?? "-")",
-                             "Platform: \(build.platform ?? "-")", "Internal state: \(result.internalState ?? "-")",
-                             "External state: \(build.externalState ?? "-")"]
-                lines += result.localizations.map { "What to Test (\($0.locale ?? $0.id)): \($0.whatToTest ?? "-")" }
-                lines += result.bundles.map { "Bundle: \($0.bundleID ?? $0.id) (\($0.bundleType ?? "-"))" }
-                return lines.joined(separator: "\n")
-            },
-        )
     }
 }
 

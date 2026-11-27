@@ -94,10 +94,6 @@ public struct CLIParser: Sendable {
             RootCommand.helpMessage(for: BuildsSetExportComplianceCommand.self)
         case ["testflight"]:
             RootCommand.helpMessage(for: TestFlightCommand.self)
-        case ["testflight", "builds"]:
-            RootCommand.helpMessage(for: TestFlightBuildsCommand.self)
-        case ["testflight", "builds", "get"]:
-            RootCommand.helpMessage(for: TestFlightBuildsGetCommand.self)
         case ["testflight", "feedback"]:
             RootCommand.helpMessage(for: TestFlightFeedbackCommand.self)
         case ["testflight", "feedback", "list"]:
