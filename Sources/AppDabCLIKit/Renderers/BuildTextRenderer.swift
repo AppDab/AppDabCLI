@@ -19,7 +19,7 @@ struct BuildTextRenderer {
             var rows = [
                 ("App ID", detail.appID ?? "-"),
                 ("Prerelease version", build.prereleaseVersion ?? "-"),
-                ("Internal beta state", detail.internalState ?? "-"),
+                ("Internal beta state", build.internalBetaState ?? "-"),
                 ("External beta state", build.externalBetaState ?? "-"),
             ]
             rows += detail.localizations.map { ("What to Test (\($0.locale ?? $0.id))", $0.whatToTest ?? "-") }
