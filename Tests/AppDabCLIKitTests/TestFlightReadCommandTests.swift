@@ -37,8 +37,13 @@ struct TestFlightReadCommandTests {
 
     @Test func existingBuildListAcceptsVersionSort() throws {
         let parser = CLIParser()
-        let arguments = ["builds", "list", "--account-id", "account", "--app-id", "app", "--sort"]
-        #expect(try parser.parse(arguments + ["version"]).actionID == .listBuilds)
-        #expect(throws: CLIUsageError.self) { try parser.parse(arguments + ["unrecognized"]) }
+        let options = ["--account-id", "account", "--app-id", "app"]
+        let sortedOptions = options + ["--sort", "version"]
+        #expect(try BuildsListCommand.parse(options).sort == .uploadedDate)
+        #expect(try BuildsListCommand.parse(sortedOptions).sort == .version)
+        #expect(try parser.parse(["builds", "list"] + sortedOptions).actionID == .listBuilds)
+        #expect(throws: CLIUsageError.self) {
+            try parser.parse(["builds", "list"] + options + ["--sort", "unrecognized"])
+        }
     }
 }

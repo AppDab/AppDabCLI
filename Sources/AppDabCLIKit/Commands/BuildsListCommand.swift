@@ -20,15 +20,20 @@ struct BuildsListCommand: ParsableCommand, InvokingCommand {
     @Option(help: "Maximum builds to return, from 1 through 200.")
     var limit: Int?
 
-    @Option(help: "Sort by uploadedDate (default) or version. Reuse the same sort when paging.")
-    var sort = "uploadedDate"
+    @Option(
+        help: "Sort by uploadedDate (default) or version. Reuse the same sort when paging.",
+        transform: { value in
+            guard let sort = BuildListSort(rawValue: value) else {
+                throw ValidationError("The value for '--sort' must be uploadedDate or version.")
+            }
+            return sort
+        },
+    )
+    var sort = BuildListSort.uploadedDate
 
     @OptionGroup var output: OutputOptions
 
     mutating func validate() throws {
-        guard BuildListSort(rawValue: sort) != nil else {
-            throw ValidationError("The value for '--sort' must be uploadedDate or version.")
-        }
         if let limit, !(1 ... PaginationRequest.maximumLimit).contains(limit) {
             throw ValidationError("The value for '--limit' must be from 1 through 200.")
         }
@@ -45,7 +50,7 @@ struct BuildsListCommand: ParsableCommand, InvokingCommand {
             ListBuildsAction.self,
             input: .init(
                 accountID: accountID, appID: appID, pagination: .init(cursor: cursor, limit: limit),
-                sort: BuildListSort(rawValue: sort) ?? .uploadedDate,
+                sort: sort,
             ),
             format: output.format,
             verbose: output.verbose,
