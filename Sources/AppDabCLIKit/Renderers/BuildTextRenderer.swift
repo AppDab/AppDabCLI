@@ -2,7 +2,7 @@ import AppDabServices
 import Foundation
 
 struct BuildTextRenderer {
-    func render(_ build: BuildSummary, style: TextStyle, includesTestFlight: Bool = false) -> String {
+    func render(_ build: BuildSummary, style: TextStyle) -> String {
         var sections = [
             style.heading("Build"),
             TextDetails(rows: [
@@ -15,7 +15,7 @@ struct BuildTextRenderer {
                 ("Build ID", build.buildID),
             ]).render(style: style),
         ]
-        if includesTestFlight, let detail = build.testFlight {
+        if let detail = build.testFlight {
             var rows = [
                 ("App ID", detail.appID ?? "-"),
                 ("Prerelease version", build.prereleaseVersion ?? "-"),
