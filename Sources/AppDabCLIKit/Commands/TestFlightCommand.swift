@@ -62,7 +62,10 @@ struct TestFlightFeedbackListCommand: ParsableCommand, InvokingCommand {
             format: output.format,
             verbose: output.verbose,
             render: { result, style in
-                TextTable(
+                guard !result.submissions.isEmpty else {
+                    return "No screenshot feedback found."
+                }
+                return TextTable(
                     headers: ["Submitted", "Build", "Screenshots", "Submission ID"],
                     rows: result.submissions.map {
                         [$0.createdDate?.formatted(.iso8601) ?? "-", $0.buildNumber ?? "-", String($0.attachments.count), $0.id]
@@ -92,13 +95,14 @@ struct TestFlightFeedbackGetCommand: ParsableCommand, InvokingCommand {
             verbose: output.verbose,
             render: { result, style in
                 let submission = result.submission
-                var lines = [style.heading(submission.id), "App ID: \(result.appID)", "Submitted: \(submission.createdDate?.formatted(.iso8601) ?? "-")",
+                var lines = ["App ID: \(result.appID)", "Submitted: \(submission.createdDate?.formatted(.iso8601) ?? "-")",
                              "Build: \(submission.buildNumber ?? "-")", "Device: \(submission.deviceModel ?? "-")",
                              "OS version: \(submission.osVersion ?? "-")", "Screenshots: \(submission.attachments.count)"]
                 if let comment = submission.comment {
                     lines.append(comment)
                 }
-                return lines.joined(separator: "\n")
+                let heading = style.heading(style.sanitize(submission.id))
+                return ([heading] + lines.map(style.sanitize)).joined(separator: "\n")
             },
         )
     }

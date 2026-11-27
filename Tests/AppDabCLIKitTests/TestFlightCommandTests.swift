@@ -7,6 +7,89 @@ import Testing
 
 @Suite("TestFlight CLI commands")
 struct TestFlightCommandTests {
+    @Test func feedbackListForwardsPaginationAndRendersTextAndJSON() async throws {
+        let provider = TestFlightCLIProvider()
+        let runner = makeRunner(provider)
+        let arguments = [
+            "testflight", "feedback", "list", "--account-id", "feedback-account", "--app-id", "feedback-app",
+            "--cursor", "first-page", "--limit", "2",
+        ]
+
+        let text = await runner.run(arguments: arguments)
+        let json = await runner.run(arguments: arguments + ["--format", "json"])
+        let envelope = try #require(JSONSerialization.jsonObject(with: Data(json.standardOutput.utf8)) as? [String: Any])
+        let data = try #require(envelope["data"] as? [String: Any])
+        let submissions = try #require(data["submissions"] as? [[String: Any]])
+        let pagination = try #require(data["pagination"] as? [String: Any])
+        let requests = await provider.feedbackListRequests
+
+        #expect(requests.map { $0.accountID } == ["feedback-account", "feedback-account"])
+        #expect(requests.map { $0.appID } == ["feedback-app", "feedback-app"])
+        #expect(requests.map { $0.pagination } == Array(repeating: .init(cursor: "first-page", limit: 2), count: 2))
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("submission-1"))
+        #expect(text.standardOutput.contains("Screenshots"))
+        #expect(text.standardOutput.contains("""
+        Next page command:
+        dab testflight feedback list \\
+          --account-id feedback-account \\
+          --app-id feedback-app \\
+          --cursor next-feedback \\
+          --limit 2
+        """))
+        #expect(json.exitCode == 0)
+        #expect(envelope["action"] as? String == "list_testflight_screenshot_feedback")
+        #expect(data["appID"] as? String == "feedback-app")
+        #expect(submissions.first?["id"] as? String == "submission-1")
+        #expect(pagination["nextCursor"] as? String == "next-feedback")
+        #expect(pagination["limit"] as? Int == 2)
+    }
+
+    @Test func feedbackGetForwardsIdentifiersAndSanitizesTextOnly() async throws {
+        let provider = TestFlightCLIProvider()
+        let runner = makeRunner(provider)
+        let arguments = [
+            "testflight", "feedback", "get", "--account-id", "feedback-account", "--submission-id", "feedback-detail",
+        ]
+
+        let text = await runner.run(arguments: arguments)
+        let json = await runner.run(arguments: arguments + ["--format", "json"])
+        let envelope = try #require(JSONSerialization.jsonObject(with: Data(json.standardOutput.utf8)) as? [String: Any])
+        let data = try #require(envelope["data"] as? [String: Any])
+        let submission = try #require(data["submission"] as? [String: Any])
+        let attachments = try #require(submission["attachments"] as? [[String: Any]])
+        let requests = await provider.feedbackDetailRequests
+
+        #expect(requests.map { $0.accountID } == ["feedback-account", "feedback-account"])
+        #expect(requests.map { $0.submissionID } == ["feedback-detail", "feedback-detail"])
+        #expect(text.exitCode == 0)
+        #expect(text.standardOutput.contains("App ID: owning-app"))
+        #expect(text.standardOutput.contains("Looks �good\nSecond line"))
+        #expect(text.standardOutput.contains("Screenshots: 1"))
+        #expect(json.exitCode == 0)
+        #expect(envelope["action"] as? String == "get_testflight_screenshot_feedback")
+        #expect(data["appID"] as? String == "owning-app")
+        #expect(submission["id"] as? String == "feedback-detail")
+        #expect(submission["comment"] as? String == TestFlightCLIProvider.feedbackComment)
+        #expect(attachments.first?["width"] as? Int == 120)
+    }
+
+    @Test func emptyFeedbackListIsReadableInANarrowTerminal() async {
+        let capabilities = CLIOutputCapabilities(
+            standardOutputIsTerminal: true, standardErrorIsTerminal: false,
+            environment: ["COLUMNS": "40", "NO_COLOR": "1"],
+        )
+        let runner = CLIRunner(executor: makeExecutor(TestFlightCLIProvider()), outputCapabilities: capabilities)
+
+        let result = await runner.run(arguments: [
+            "testflight", "feedback", "list", "--account-id", "feedback-account", "--app-id", "empty-feedback",
+        ])
+
+        #expect(result.exitCode == 0)
+        #expect(result.standardOutput == "No screenshot feedback found.")
+        #expect(result.standardError.isEmpty)
+    }
+
     @Test func betaGroupReadsRenderTextAndStructuredJSON() async throws {
         let runner = makeRunner(TestFlightCLIProvider())
         let listed = await runner.run(arguments: [
@@ -163,7 +246,7 @@ struct TestFlightCommandTests {
     }
 }
 
-private actor TestFlightCLIProvider: AutomationDataProviding {
+private actor TestFlightCLIProvider: AutomationDataProviding, TestFlightScreenshotFeedbackServing {
     private let base = MockAutomationDataProvider()
     private var buildTesters = ["tester-1"]
     private var buildGroups: [String] = []
@@ -175,6 +258,42 @@ private actor TestFlightCLIProvider: AutomationDataProviding {
     private var expired = false
     private let failAfterMutation: Bool
     private(set) var mutationCount = 0
+
+    static let feedbackComment = "Looks \u{07}good\nSecond line"
+    private(set) var feedbackListRequests: [ListTestFlightScreenshotFeedbackInput] = []
+    private(set) var feedbackDetailRequests: [GetTestFlightScreenshotFeedbackInput] = []
+
+    nonisolated func testFlightScreenshotFeedback() -> any TestFlightScreenshotFeedbackServing {
+        self
+    }
+
+    func listSubmissions(accountID: String, appID: String, pagination: PaginationRequest) async throws -> TestFlightScreenshotFeedbackList {
+        feedbackListRequests.append(.init(accountID: accountID, appID: appID, pagination: pagination))
+        let limit = try pagination.resolvedLimit()
+        if appID == "empty-feedback" {
+            return .init(appID: appID, submissions: [], pagination: .init(limit: limit, total: 0, nextCursor: nil))
+        }
+        let detail = try feedbackDetail(submissionID: "submission-1")
+        return .init(appID: appID, submissions: [detail.submission], pagination: .init(limit: limit, total: 3, nextCursor: "next-feedback"))
+    }
+
+    func getSubmission(accountID: String, submissionID: String) async throws -> TestFlightScreenshotFeedbackDetail {
+        feedbackDetailRequests.append(.init(accountID: accountID, submissionID: submissionID))
+        return try feedbackDetail(submissionID: submissionID)
+    }
+
+    private func feedbackDetail(submissionID: String) throws -> TestFlightScreenshotFeedbackDetail {
+        let data = try JSONSerialization.data(withJSONObject: [
+            "appID": "owning-app",
+            "submission": [
+                "id": submissionID,
+                "comment": Self.feedbackComment,
+                "buildNumber": "42",
+                "attachments": [["width": 120, "height": 80]],
+            ],
+        ])
+        return try JSONDecoder().decode(TestFlightScreenshotFeedbackDetail.self, from: data)
+    }
 
     init(failAfterMutation: Bool = false) {
         self.failAfterMutation = failAfterMutation
